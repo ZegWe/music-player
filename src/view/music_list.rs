@@ -53,7 +53,7 @@ pub fn draw_music_list<B: Backend>(
     search_string: &str,
 ) {
     let selected_index = selected_index.unwrap();
-    let display = Display::new(window_height - 3, files.len(), selected_index);
+    let display = Display::new(window_height, files.len(), selected_index);
     let mut music_names: Vec<Spans> = Vec::new();
 
     // List block
@@ -99,7 +99,7 @@ pub fn draw_music_list<B: Backend>(
         }
 
         // Set style for selected music
-        let remove_num = selected_index - ((display.page.0 - 1) * (window_height - 3));
+        let remove_num = selected_index - ((display.page.0 - 1) * window_height);
         let names =
             music_names.remove(remove_num);
         let mut icon_name: Vec<String> = names

@@ -1,4 +1,3 @@
-use std::env;
 use std::io;
 
 use app::App;
@@ -19,8 +18,6 @@ fn main() -> Result<(), ExitFailure> {
     let init_config = config::init()?;
     let theme = handle_theme(init_config.theme);
 
-    env::set_current_dir(init_config.music_database)?;
-
     // Initialize terminal
     enable_raw_mode()?;
     let stdout = io::stdout();
@@ -30,7 +27,7 @@ fn main() -> Result<(), ExitFailure> {
     terminal.clear()?;
 
     //Initialize App state
-    let mut app = App::new(&mut terminal)?;
+    let mut app = App::new(&mut terminal, &init_config.music_database)?;
 
     //Main application loop
     loop {
@@ -51,6 +48,9 @@ fn main() -> Result<(), ExitFailure> {
                 KeyCode::Char('K') => app.move_select_up(5),
                 KeyCode::Char(']') => app.next_page(),
                 KeyCode::Char('[') => app.previous_page(),
+                KeyCode::Enter => app.open_folder(),
+                KeyCode::Char('l') => app.open_folder(),
+                KeyCode::Char('h') => app.back_previous_folder(&init_config.music_database),
                 _ => {}
             }
         }

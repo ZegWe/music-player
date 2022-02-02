@@ -1,7 +1,8 @@
 use std::fs::read_dir;
+use std::io;
 use std::path::PathBuf;
 
-use exitfailure::ExitFailure;
+use crate::app::App;
 
 #[derive(Eq, PartialEq, PartialOrd, Ord, Debug, Clone)]
 pub enum DirectoryItem {
@@ -11,11 +12,11 @@ pub enum DirectoryItem {
     Directory(String),
 }
 
-pub fn get_files_for_current_directory() -> Result<Vec<DirectoryItem>, ExitFailure> {
+pub fn get_files_for_current_directory(app: &mut App) -> Result<Vec<DirectoryItem>, io::Error> {
     //Get list, unwrap, and convert results to &Path
-    let dir_items: Vec<PathBuf> = match read_dir(".") {
+    let dir_items: Vec<PathBuf> = match read_dir(&app.current_directory) {
         Ok(val) => val.map(|f| f.unwrap().path()).collect(),
-        Err(err) => return Err(ExitFailure::from(err)),
+        Err(err) => return Err(err),
     };
 
     //Convert items to DirectoryItem
@@ -36,7 +37,7 @@ pub fn get_files_for_current_directory() -> Result<Vec<DirectoryItem>, ExitFailu
     Ok(files)
 }
 
-pub fn check_audio_file(path: &PathBuf) -> Result<bool, ExitFailure> {
+pub fn check_audio_file(path: &PathBuf) -> Result<bool, io::Error> {
     if let Some(t) = infer::get_from_path(path.to_str().unwrap())? {
         let mime_type = t.mime_type();
 
