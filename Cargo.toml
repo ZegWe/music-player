@@ -3,8 +3,6 @@ name = "music-player"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 rodio = "0.15"
 exitfailure = "0.5.1"
@@ -13,3 +11,6 @@ serde = { version = "1", features = ["derive"] }
 serde_yaml = "0.8"
 crossterm = "0.22.1"
 tui = "0.17.0"
+infer = "0.6.0"
+regex = "1.5"
+lazy_static = "1.4.0"

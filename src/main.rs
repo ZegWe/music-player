@@ -8,6 +8,7 @@ use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
 use exitfailure::ExitFailure;
 use tui::backend::CrosstermBackend;
 use tui::Terminal;
+use view::handle_theme;
 
 mod app;
 mod config;
@@ -16,6 +17,8 @@ mod view;
 
 fn main() -> Result<(), ExitFailure> {
     let init_config = config::init()?;
+    let theme = handle_theme(init_config.theme);
+    
     env::set_current_dir(init_config.music_database)?;
 
     // Initialize terminal
@@ -32,6 +35,7 @@ fn main() -> Result<(), ExitFailure> {
     //Main application loop
     loop {
         app.update_window_height();
+        view::draw(&mut app, &theme)?;
 
         //Handle input
         if let Event::Key(key) = event::read()? {
