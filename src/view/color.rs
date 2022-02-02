@@ -29,11 +29,12 @@ pub struct Theme {
     pub list_title_color: Color,
     pub list_title_page_color: Color,
     pub list_boder_color: Color,
-    pub search_boder_color: Color,
-    pub search_icon_color: Color,
     pub list_music_color: Color,
     pub list_folder_color: Color,
-    pub list_folder_icon_color: Color,
+    pub list_icon_color: Color,
+    pub list_selected_color: Color,
+    pub search_boder_color: Color,
+    pub search_icon_color: Color,
 }
 
 impl Theme {
@@ -43,7 +44,8 @@ impl Theme {
             list_title_page_color: parse_hex_color(&init_theme.list_title_page_color),
             list_music_color: parse_hex_color(&init_theme.list_music_color),
             list_folder_color: parse_hex_color(&init_theme.list_folder_color),
-            list_folder_icon_color: parse_hex_color(&init_theme.list_folder_icon_color),
+            list_icon_color: parse_hex_color(&init_theme.list_icon_color),
+            list_selected_color: parse_hex_color(&init_theme.list_selected_color),
             list_boder_color: parse_hex_color(&init_theme.list_boder_color),
             search_boder_color: parse_hex_color(&init_theme.search_boder_color),
             search_icon_color: parse_hex_color(&init_theme.search_icon_color),

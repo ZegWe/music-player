@@ -68,4 +68,83 @@ impl<'a> App<'a> {
 
         search_string
     }
+
+    pub fn move_select_top(&mut self) {
+        if let Some(_) = self.selection_index {
+            self.selection_index = Some(0);
+        }
+    }
+
+    pub fn move_select_bottom(&mut self) {
+        if let Some(_) = self.selection_index {
+            self.selection_index = Some(self.max_file_selection - 1);
+        }
+    }
+
+    pub fn move_select_up(&mut self, step: i32) {
+        if let Some(selection_index) = self.selection_index {
+            let diff = selection_index as i32 - step;
+            if diff > 0 {
+                self.selection_index = Some(diff as usize);
+            } else {
+                self.selection_index = Some(0);
+            }
+        }
+    }
+
+    pub fn move_select_down(&mut self, step: usize) {
+        if let Some(selection_index) = self.selection_index {
+            if selection_index + step < self.max_file_selection {
+                self.selection_index = Some(selection_index + step);
+            } else {
+                self.selection_index = Some(self.max_file_selection - 1);
+            }
+        }
+    }
+
+    pub fn next_page(&mut self) {
+        if let Some(selection_index) = self.selection_index {
+            let height = self.window_height;
+            // show items length
+            let display_pages =
+                ((self.directory_contents.len() as f32) / (height as f32)).ceil() as usize;
+
+            if display_pages > 1 {
+                let mut page = 0;
+                for i in 0..display_pages {
+                    if selection_index < (i + 1) * height as usize {
+                        page = i + 1;
+                        break;
+                    }
+                }
+
+                if page < display_pages {
+                    self.selection_index = Some(page * height as usize);
+                }
+            }
+        }
+    }
+
+    pub fn previous_page(&mut self) {
+        if let Some(selection_index) = self.selection_index {
+            let height = self.window_height;
+            // show items length
+            let display_pages =
+                ((self.directory_contents.len() as f32) / (height as f32)).ceil() as usize;
+
+            if display_pages > 1 {
+                let mut page = 0;
+                for i in 0..display_pages {
+                    if selection_index < (i + 1) * height as usize {
+                        page = i + 1;
+                        break;
+                    }
+                }
+
+                if page > 1 {
+                    self.selection_index = Some(selection_index - height as usize);
+                }
+            }
+        }
+    }
 }

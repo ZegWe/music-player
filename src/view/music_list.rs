@@ -52,7 +52,8 @@ pub fn draw_music_list<B: Backend>(
     selected_index: &Option<usize>,
     search_string: &str,
 ) {
-    let display = Display::new(window_height, files.len(), selected_index.unwrap());
+    let selected_index = selected_index.unwrap();
+    let display = Display::new(window_height - 3, files.len(), selected_index);
     let mut music_names: Vec<Spans> = Vec::new();
 
     // List block
@@ -77,24 +78,45 @@ pub fn draw_music_list<B: Backend>(
                 DirectoryItem::File(path) => {
                     let name = get_file_name(path);
 
-                    music_names.push(Spans::from(vec![Span::styled(
-                        format!("  {}\n", &name),
-                        Style::default().fg(theme.list_music_color),
-                    )]));
+                    music_names.push(get_spans(
+                        "  ",
+                        &name,
+                        theme.list_icon_color,
+                        theme.list_music_color,
+                    ));
                 }
                 DirectoryItem::Directory(path) => {
                     let name = get_file_name(path);
 
-                    music_names.push(Spans::from(vec![
-                        Span::styled(" ", Style::default().fg(theme.list_folder_icon_color)),
-                        Span::styled(
-                            format!("{}\n", &name),
-                            Style::default().fg(theme.list_folder_color),
-                        ),
-                    ]));
+                    music_names.push(get_spans(
+                        "  ",
+                        &name,
+                        theme.list_icon_color,
+                        theme.list_folder_color,
+                    ));
                 }
             }
         }
+
+        // Set style for selected music
+        let remove_num = selected_index - ((display.page.0 - 1) * (window_height - 3));
+        let names =
+            music_names.remove(remove_num);
+        let mut icon_name: Vec<String> = names
+            .0
+            .iter()
+            .map(|span| span.content.to_string())
+            .collect();
+        icon_name[1].insert_str(0, "");
+        music_names.insert(
+            remove_num,
+            get_spans(
+                &icon_name[0],
+                &icon_name[1],
+                theme.list_icon_color,
+                theme.list_selected_color,
+            ),
+        );
 
         //Create the list chunks
         let inner_rect = Rect::new(area.x + 1, area.y + 1, area.width - 2, area.height - 2);
@@ -124,4 +146,11 @@ pub fn draw_music_list<B: Backend>(
 fn get_file_name(path: &str) -> &str {
     let str = path.split("\\").collect::<Vec<&str>>();
     str.last().unwrap()
+}
+
+fn get_spans<'a>(icon: &'a str, name: &'a str, icon_color: Color, name_color: Color) -> Spans<'a> {
+    Spans::from(vec![
+        Span::styled(icon, Style::default().fg(icon_color)),
+        Span::styled(format!("{}\n", name), Style::default().fg(name_color)),
+    ])
 }

@@ -12,11 +12,12 @@ pub struct InitTheme {
     pub list_title_color: String,
     pub list_title_page_color: String,
     pub list_boder_color: String,
-    pub search_boder_color: String,
-    pub search_icon_color: String,
     pub list_music_color: String,
     pub list_folder_color: String,
-    pub list_folder_icon_color: String,
+    pub list_icon_color: String,
+    pub list_selected_color: String,
+    pub search_boder_color: String,
+    pub search_icon_color: String,
 }
 
 pub fn init() -> Result<InitConfig, ExitFailure> {

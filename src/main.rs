@@ -18,7 +18,7 @@ mod view;
 fn main() -> Result<(), ExitFailure> {
     let init_config = config::init()?;
     let theme = handle_theme(init_config.theme);
-    
+
     env::set_current_dir(init_config.music_database)?;
 
     // Initialize terminal
@@ -41,6 +41,16 @@ fn main() -> Result<(), ExitFailure> {
         if let Event::Key(key) = event::read()? {
             match key.code {
                 KeyCode::Char('q') => break,
+                KeyCode::Char('g') => app.move_select_top(),
+                KeyCode::Char('G') => app.move_select_bottom(),
+                KeyCode::Down => app.move_select_down(1),
+                KeyCode::Char('j') => app.move_select_down(1),
+                KeyCode::Char('J') => app.move_select_down(5),
+                KeyCode::Up => app.move_select_up(1),
+                KeyCode::Char('k') => app.move_select_up(1),
+                KeyCode::Char('K') => app.move_select_up(5),
+                KeyCode::Char(']') => app.next_page(),
+                KeyCode::Char('[') => app.previous_page(),
                 _ => {}
             }
         }
