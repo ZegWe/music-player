@@ -11,3 +11,5 @@ exitfailure = "0.5.1"
 dirs = "4.0.0"
 serde = { version = "1", features = ["derive"] }
 serde_yaml = "0.8"
+crossterm = "0.22.1"
+tui = "0.17.0"
