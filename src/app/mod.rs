@@ -6,6 +6,7 @@ use tui::backend::CrosstermBackend;
 use tui::Terminal;
 
 use crate::file_ops::{self, DirectoryItem};
+use crate::music::Music;
 
 pub struct App<'a> {
     pub terminal: &'a mut Terminal<CrosstermBackend<Stdout>>,
@@ -15,6 +16,7 @@ pub struct App<'a> {
     pub search_buffer: Vec<char>,
     pub error: Option<String>,
     pub window_height: u16,
+    pub playing_music: Option<Music>,
 
     max_file_selection: usize,
 }
@@ -35,6 +37,7 @@ impl<'a> App<'a> {
             search_buffer: Vec::new(),
             error: None,
             window_height,
+            playing_music: None,
             max_file_selection: 0,
         };
 
@@ -44,7 +47,6 @@ impl<'a> App<'a> {
     }
 
     pub fn update_window_height(&mut self) {
-        //borders window height add up to 2
         self.window_height = self.terminal.size().unwrap().height - 5;
     }
 
@@ -203,4 +205,8 @@ impl<'a> App<'a> {
             }
         }
     }
+
+    pub fn playing_music(&mut self) {
+    }
+    
 }

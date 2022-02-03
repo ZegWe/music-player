@@ -68,7 +68,7 @@ pub fn draw_music_list<B: Backend>(
             ),
         ]))
         .title_alignment(Alignment::Center)
-        .style(Style::default().fg(theme.list_boder_color));
+        .style(Style::default().fg(theme.list_border_color));
     frame.render_widget(block, area);
 
     if files.len() != 0 {
@@ -134,7 +134,7 @@ pub fn draw_music_list<B: Backend>(
             Block::default()
                 .borders(Borders::ALL)
                 .border_type(BorderType::Rounded)
-                .style(Style::default().fg(theme.search_boder_color)),
+                .style(Style::default().fg(theme.search_border_color)),
         );
         frame.render_widget(search, chunks[0]);
 

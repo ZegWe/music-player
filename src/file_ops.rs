@@ -46,3 +46,7 @@ pub fn check_audio_file(path: &PathBuf) -> Result<bool, io::Error> {
 
     Ok(false)
 }
+
+pub fn read_audio_file() {
+    
+}

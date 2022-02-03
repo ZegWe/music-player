@@ -1,10 +1,9 @@
 use std::io;
 
 use app::App;
-use crossterm::event;
-use crossterm::event::{Event, KeyCode};
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
 use exitfailure::ExitFailure;
+use handler::event::handle_event;
 use tui::backend::CrosstermBackend;
 use tui::Terminal;
 use view::handle_theme;
@@ -13,6 +12,8 @@ mod app;
 mod config;
 mod file_ops;
 mod view;
+mod music;
+mod handler;
 
 fn main() -> Result<(), ExitFailure> {
     let init_config = config::init()?;
@@ -34,26 +35,9 @@ fn main() -> Result<(), ExitFailure> {
         app.update_window_height();
         view::draw(&mut app, &theme)?;
 
-        //Handle input
-        if let Event::Key(key) = event::read()? {
-            match key.code {
-                KeyCode::Char('q') => break,
-                KeyCode::Char('g') => app.move_select_top(),
-                KeyCode::Char('G') => app.move_select_bottom(),
-                KeyCode::Down => app.move_select_down(1),
-                KeyCode::Char('j') => app.move_select_down(1),
-                KeyCode::Char('J') => app.move_select_down(5),
-                KeyCode::Up => app.move_select_up(1),
-                KeyCode::Char('k') => app.move_select_up(1),
-                KeyCode::Char('K') => app.move_select_up(5),
-                KeyCode::Char(']') => app.next_page(),
-                KeyCode::Char('[') => app.previous_page(),
-                KeyCode::Enter => app.open_folder(),
-                KeyCode::Char('l') => app.open_folder(),
-                KeyCode::Char('h') => app.back_previous_folder(&init_config.music_database),
-                _ => {}
-            }
-        }
+        if !handle_event(&mut app, &init_config.music_database) {
+            break;
+        };
     }
 
     disable_raw_mode()?;

@@ -28,13 +28,19 @@ fn parse_hex_color(color: &str) -> Color {
 pub struct Theme {
     pub list_title_color: Color,
     pub list_title_page_color: Color,
-    pub list_boder_color: Color,
+    pub list_border_color: Color,
     pub list_music_color: Color,
     pub list_folder_color: Color,
     pub list_icon_color: Color,
     pub list_selected_color: Color,
-    pub search_boder_color: Color,
+    pub search_border_color: Color,
     pub search_icon_color: Color,
+    pub info_title_color: Color,
+    pub info_border_color: Color,
+    pub music_pic_color1: Color,
+    pub music_pic_color2: Color,
+    pub usage_color_left: Color,
+    pub usage_color_right: Color
 }
 
 impl Theme {
@@ -46,9 +52,15 @@ impl Theme {
             list_folder_color: parse_hex_color(&init_theme.list_folder_color),
             list_icon_color: parse_hex_color(&init_theme.list_icon_color),
             list_selected_color: parse_hex_color(&init_theme.list_selected_color),
-            list_boder_color: parse_hex_color(&init_theme.list_boder_color),
-            search_boder_color: parse_hex_color(&init_theme.search_boder_color),
+            list_border_color: parse_hex_color(&init_theme.list_border_color),
+            search_border_color: parse_hex_color(&init_theme.search_border_color),
             search_icon_color: parse_hex_color(&init_theme.search_icon_color),
+            info_title_color: parse_hex_color(&init_theme.info_title_color),
+            info_border_color: parse_hex_color(&init_theme.info_border_color),
+            music_pic_color1: parse_hex_color(&init_theme.music_pic_color1),
+            music_pic_color2: parse_hex_color(&init_theme.music_pic_color2),
+            usage_color_left: parse_hex_color(&init_theme.usage_color_left),
+            usage_color_right: parse_hex_color(&init_theme.usage_color_right),
         }
     }
 }
