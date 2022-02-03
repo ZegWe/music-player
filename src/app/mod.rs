@@ -2,10 +2,11 @@ use std::io::{self, Stdout};
 use std::path::{self, PathBuf};
 
 use exitfailure::ExitFailure;
+use rodio::Sink;
 use tui::backend::CrosstermBackend;
 use tui::Terminal;
 
-use crate::file_ops::{self, DirectoryItem};
+use crate::file_ops::{self, get_audio_source, DirectoryItem};
 use crate::music::Music;
 
 pub struct App<'a> {
@@ -16,7 +17,8 @@ pub struct App<'a> {
     pub search_buffer: Vec<char>,
     pub error: Option<String>,
     pub window_height: u16,
-    pub playing_music: Option<Music>,
+    pub play_music_list: Vec<Music>,
+    pub player: &'a mut Sink,
 
     max_file_selection: usize,
 }
@@ -25,6 +27,7 @@ impl<'a> App<'a> {
     pub fn new(
         terminal: &'a mut Terminal<CrosstermBackend<Stdout>>,
         music_database: &str,
+        player: &'a mut rodio::Sink
     ) -> Result<App<'a>, ExitFailure> {
         let window_height = terminal.size().unwrap().height - 5;
         let current_directory = path::PathBuf::from(music_database);
@@ -37,7 +40,8 @@ impl<'a> App<'a> {
             search_buffer: Vec::new(),
             error: None,
             window_height,
-            playing_music: None,
+            play_music_list: Vec::new(),
+            player,
             max_file_selection: 0,
         };
 
@@ -206,7 +210,34 @@ impl<'a> App<'a> {
         }
     }
 
-    pub fn playing_music(&mut self) {
+    pub fn get_selected_file_path(&mut self) -> Option<String> {
+        if let Some(selection_index) = self.selection_index {
+            let dir_item = &self.directory_contents[selection_index];
+            match dir_item {
+                DirectoryItem::File(path) | DirectoryItem::Directory(path) => Some(path.clone()),
+            }
+        } else {
+            None
+        }
     }
-    
+
+    pub fn add_music_to_list(&mut self) {
+        if let Some(music) = Music::new(self) {
+            match get_audio_source(&music.path) {
+                Ok(source) => {
+                    self.play_music_list.push(music);
+                    self.player.append(source);
+                }
+                Err(err) => self.error = Some(err.to_string()),
+            };
+        };
+    }
+
+    pub fn stop_or_start_play(&mut self) {
+        if self.player.is_paused() {
+            self.player.play();
+        } else {
+            self.player.pause();
+        }
+    }
 }

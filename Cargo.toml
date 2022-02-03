@@ -2,9 +2,12 @@
 name = "music-player"
 version = "0.1.0"
 edition = "2021"
+authors = ["xiaohui"]
 
 [dependencies]
 rodio = "0.15"
+id3 = "1.0.2"
+mp3-duration = "0.1.10"
 exitfailure = "0.5.1"
 dirs = "4.0.0"
 serde = { version = "1", features = ["derive"] }
@@ -14,3 +17,4 @@ tui = "0.17.0"
 infer = "0.6.0"
 regex = "1.5"
 lazy_static = "1.4.0"
+tokio = "1.16.1"

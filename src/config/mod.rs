@@ -18,12 +18,17 @@ pub struct InitTheme {
     pub list_selected_color: String,
     pub search_border_color: String,
     pub search_icon_color: String,
-    pub info_title_color: String,
-    pub info_border_color: String,
     pub music_pic_color1: String,
     pub music_pic_color2: String,
     pub usage_color_left: String,
     pub usage_color_right: String,
+    pub play_music_list_title_color: String,
+    pub play_music_list_border_color: String,
+    pub play_music_list_id_color: String,
+    pub play_music_list_duration_color: String,
+    pub play_music_list_name_color: String,
+    pub play_music_list_artist_color: String,
+    pub play_music_list_album_color: String,
 }
 
 pub fn init() -> Result<InitConfig, ExitFailure> {

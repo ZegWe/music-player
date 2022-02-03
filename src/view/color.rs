@@ -35,15 +35,21 @@ pub struct Theme {
     pub list_selected_color: Color,
     pub search_border_color: Color,
     pub search_icon_color: Color,
-    pub info_title_color: Color,
-    pub info_border_color: Color,
     pub music_pic_color1: Color,
     pub music_pic_color2: Color,
     pub usage_color_left: Color,
-    pub usage_color_right: Color
+    pub usage_color_right: Color,
+    pub play_music_list_title_color: Color,
+    pub play_music_list_border_color: Color,
+    pub play_music_list_id_color: Color,
+    pub play_music_list_duration_color: Color,
+    pub play_music_list_name_color: Color,
+    pub play_music_list_artist_color: Color,
+    pub play_music_list_album_color: Color,
 }
 
 impl Theme {
+    #[rustfmt::skip]
     pub fn new(init_theme: InitTheme) -> Theme {
         Theme {
             list_title_color: parse_hex_color(&init_theme.list_title_color),
@@ -55,12 +61,17 @@ impl Theme {
             list_border_color: parse_hex_color(&init_theme.list_border_color),
             search_border_color: parse_hex_color(&init_theme.search_border_color),
             search_icon_color: parse_hex_color(&init_theme.search_icon_color),
-            info_title_color: parse_hex_color(&init_theme.info_title_color),
-            info_border_color: parse_hex_color(&init_theme.info_border_color),
             music_pic_color1: parse_hex_color(&init_theme.music_pic_color1),
             music_pic_color2: parse_hex_color(&init_theme.music_pic_color2),
             usage_color_left: parse_hex_color(&init_theme.usage_color_left),
             usage_color_right: parse_hex_color(&init_theme.usage_color_right),
+            play_music_list_title_color: parse_hex_color(&init_theme.play_music_list_title_color),
+            play_music_list_border_color: parse_hex_color(&init_theme.play_music_list_border_color),
+            play_music_list_id_color: parse_hex_color(&init_theme.play_music_list_id_color),
+            play_music_list_duration_color: parse_hex_color(&init_theme.play_music_list_duration_color),
+            play_music_list_name_color: parse_hex_color(&init_theme.play_music_list_name_color),
+            play_music_list_artist_color: parse_hex_color(&init_theme.play_music_list_artist_color),
+            play_music_list_album_color: parse_hex_color(&init_theme.play_music_list_album_color),
         }
     }
 }
