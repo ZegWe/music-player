@@ -77,34 +77,50 @@ pub fn get_files_for_current_directory(app: &mut App) -> Result<Vec<DirectoryIte
 
 pub fn get_files_for_current_directory_astrict(
     app: &mut App,
-    astrict: &str
+    astrict: &str,
 ) -> Result<Vec<DirectoryItem>, io::Error> {
-        //Get list, unwrap, and convert results to &Path
-        let dir_items: Vec<PathBuf> = match read_dir(&app.current_directory) {
-            Ok(val) => val.map(|f| f.unwrap().path()).collect(),
-            Err(err) => return Err(err),
+    //Get list, unwrap, and convert results to &Path
+    let dir_items: Vec<PathBuf> = match read_dir(&app.current_directory) {
+        Ok(val) => val.map(|f| f.unwrap().path()).collect(),
+        Err(err) => return Err(err),
+    };
+
+    //Convert items to DirectoryItem
+    let mut files: Vec<DirectoryItem> = Vec::new();
+    for item in dir_items {
+        let path_string = String::from(item.to_string_lossy());
+        if !split_path_to_name(&path_string).contains(astrict) {
+            continue;
         };
-    
-        //Convert items to DirectoryItem
-        let mut files: Vec<DirectoryItem> = Vec::new();
-        for item in dir_items {
-            let path_string = String::from(item.to_string_lossy());
-            if !split_path_to_name(&path_string).contains(astrict) {
-                continue;
-            };
-            if item.is_file() {
-                // Check whether it is an audio file
-                if check_audio_file(&item)? {
-                    let file = DirectoryItem::File(path_string);
-                    files.push(file);
-                }
-            } else {
-                let file = DirectoryItem::Directory(path_string);
+        if item.is_file() {
+            // Check whether it is an audio file
+            if check_audio_file(&item)? {
+                let file = DirectoryItem::File(path_string);
                 files.push(file);
             }
+        } else {
+            let file = DirectoryItem::Directory(path_string);
+            files.push(file);
         }
-    
-        Ok(files)
+    }
+
+    Ok(files)
+}
+
+pub fn get_files_for_specified_folder(path: &str) -> Result<Vec<String>, io::Error> {
+    let mut result = Vec::new();
+    let dir_items: Vec<PathBuf> = match read_dir(path) {
+        Ok(val) => val.map(|f| f.unwrap().path()).collect(),
+        Err(err) => return Err(err),
+    };
+
+    for item in dir_items {
+        if check_audio_file(&item)? {
+            result.push(item.display().to_string());
+        }
+    };
+
+    Ok(result)
 }
 
 pub fn check_audio_file(path: &PathBuf) -> Result<bool, io::Error> {

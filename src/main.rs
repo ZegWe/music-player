@@ -32,7 +32,7 @@ fn main() -> Result<(), ExitFailure> {
 
     // Initialize App state
     let (_stream, stream_handle) = OutputStream::try_default()?;
-    let mut sink = Sink::try_new(&stream_handle)?;
+    let mut sink = Sink::try_new(&stream_handle)?; // Music player
     let mut app = App::new(&mut terminal, &init_config.music_database, &mut sink)?;
 
     let tick_rate = Duration::from_secs(1);

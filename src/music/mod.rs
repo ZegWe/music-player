@@ -16,8 +16,7 @@ pub struct Music {
 }
 
 impl Music {
-    pub fn new(app: &mut App) -> Option<Music> {
-        let path = app.get_selected_file_path().unwrap();
+    pub fn new(app: &mut App, path: String) -> Option<Music> {
         let name = split_path_to_name(&path).split('.').next().unwrap().to_string();
 
         match read_audio_file(app, &path) {

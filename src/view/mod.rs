@@ -34,6 +34,7 @@ pub fn draw(app: &mut App, theme: &Theme) -> Result<(), ExitFailure> {
             &app.directory_contents,
             &app.selection_index,
             &search_string,
+            &app.error,
         );
 
         //Create the list chunks
@@ -47,5 +48,6 @@ pub fn draw(app: &mut App, theme: &Theme) -> Result<(), ExitFailure> {
         draw_playing_music(f, chunks_right[1], &theme, &app.play_music_list, app.player.is_paused());
     })?;
 
+    app.error = None;
     Ok(())
 }

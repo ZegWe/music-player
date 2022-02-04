@@ -73,8 +73,7 @@ impl<'a> App<'a> {
 
     pub fn populate_files(&mut self) -> Result<(), io::Error> {
         let mut dir_items = file_ops::get_files_for_current_directory(self)?;
-        // Sort: folder > file
-        dir_items.sort_by(|a, b| b.cmp(a));
+        dir_items.sort();
 
         self.directory_contents = dir_items;
         self.max_file_selection = self.directory_contents.len();
@@ -90,8 +89,7 @@ impl<'a> App<'a> {
 
     pub fn populate_search_file(&mut self, astrict: &str) -> Result<(), io::Error> {
         let mut dir_items = file_ops::get_files_for_current_directory_astrict(self, astrict)?;
-        // Sort: folder > file
-        dir_items.sort_by(|a, b| b.cmp(a));
+        dir_items.sort();
 
         self.directory_contents = dir_items;
         self.max_file_selection = self.directory_contents.len();
@@ -112,6 +110,14 @@ impl<'a> App<'a> {
         }
 
         search_string
+    }
+
+    pub fn get_selected_directory_item(&mut self) -> Option<DirectoryItem> {
+        if let Some(index) = self.selection_index {
+            Some(self.directory_contents[index].clone())
+        } else {
+            None
+        }
     }
 
     pub fn move_select_top(&mut self) {
@@ -244,27 +250,40 @@ impl<'a> App<'a> {
         }
     }
 
-    pub fn get_selected_file_path(&mut self) -> Option<String> {
-        if let Some(selection_index) = self.selection_index {
-            let dir_item = &self.directory_contents[selection_index];
-            match dir_item {
-                DirectoryItem::File(path) | DirectoryItem::Directory(path) => Some(path.clone()),
-            }
-        } else {
-            None
-        }
-    }
-
-    pub fn add_music_to_list(&mut self) {
-        if let Some(music) = Music::new(self) {
-            match get_audio_source(&music.path) {
-                Ok(source) => {
-                    self.play_music_list.push(music);
-                    self.player.append(source);
+    pub fn add_music_to_list(&mut self) -> Result<(), io::Error> {
+        if let Some(directory_item) = self.get_selected_directory_item() {
+            match directory_item {
+                DirectoryItem::File(path) => {
+                    // Add a music
+                    if let Some(music) = Music::new(self, path) {
+                        match get_audio_source(&music.path) {
+                            Ok(source) => {
+                                self.play_music_list.push(music);
+                                self.player.append(source);
+                            }
+                            Err(err) => self.error = Some(err.to_string()),
+                        };
+                    };
                 }
-                Err(err) => self.error = Some(err.to_string()),
-            };
-        };
+                DirectoryItem::Directory(path) => {
+                    // Add all the music in the folder
+                    let result = file_ops::get_files_for_specified_folder(&path)?;
+                    for path in result {
+                        if let Some(music) = Music::new(self, path) {
+                            match get_audio_source(&music.path) {
+                                Ok(source) => {
+                                    self.play_music_list.push(music);
+                                    self.player.append(source);
+                                }
+                                Err(err) => self.error = Some(err.to_string()),
+                            };
+                        };
+                    }
+                }
+            }
+        }
+
+        Ok(())
     }
 
     pub fn stop_or_start_play(&mut self) {

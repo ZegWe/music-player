@@ -18,17 +18,20 @@ const MUSIC_PLAYER_PIC: &[&str] = &[
     "██║ ╚═╝ ██║","╚██████╔╝","███████║","██║","╚██████╗", "",
     "╚═╝     ╚═╝"," ╚═════╝ ","╚══════╝","╚═╝"," ╚═════╝",
 ];
+const CUT_OFF_RULE: &str = "=================   =================";
 #[rustfmt::skip]
 const USAGE: &[&str] = &[
-    "===============   ===============", "", " ",
-    "Move selection down            ", "[j]", " ",
-    "Move selection up              ", "[k]", " ",
-    "Move selection to the top      ", "[g]", " ",
-    "Move selection to the bottom   ", "[G]", " ",
-    "Next page                      ", "[n]", " ",
-    "Previous page                  ", "[N]", " ",
-    "Open folder                    ", "[l]", " ",
-    "Back previous folder           ", "[h]",
+    "Move selection up              ", "[k, K] ", " ",
+    "Move selection down            ", "[j, J] ", " ",
+    "Move selection to the top      ", "[g]    ", " ",
+    "Move selection to the bottom   ", "[G]    ", " ",
+    "Next page                      ", "[n]    ", " ",
+    "Previous page                  ", "[N]    ", " ",
+    "Open folder                    ", "[l]    ", " ",
+    "Back previous folder           ", "[h]    ", " ",
+    "Into search mode               ", "[:]    ", " ",
+    "Exit search mode               ", "[Esc]  ", " ",
+    "Add music to the paly list     ", "[Enter]",
 ];
 
 pub fn draw_play_music_list<B: Backend>(
@@ -90,7 +93,9 @@ fn draw_home_page<B: Backend>(frame: &mut Frame<B>, area: &Rect, theme: &Theme) 
     frame.render_widget(Paragraph::new(pic).alignment(Alignment::Center), chunks[0]);
 
     // Display usage
-    let mut usage: Vec<Spans> = Vec::new();
+    let mut usage: Vec<Spans> = vec![
+        Spans::from(Span::styled(CUT_OFF_RULE, Style::default().fg(theme.cut_off_rule_color))),
+    ];
     let usage_split = USAGE.split(|s| *s == " ");
     for line in usage_split {
         usage.push(Spans::from(vec![

@@ -17,7 +17,6 @@ pub fn draw_playing_music<B: Backend>(
     is_paused: bool,
 ) {
     let mut label = "";
-    if is_paused {}
     let mut percent = 0;
     let mut block_title: Vec<Span> = vec![Span::styled(
         " Playing: ",

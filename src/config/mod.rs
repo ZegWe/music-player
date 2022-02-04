@@ -23,6 +23,7 @@ pub struct InitTheme {
     pub music_pic_color2: String,
     pub usage_color_left: String,
     pub usage_color_right: String,
+    pub cut_off_rule_color: String,
     pub play_music_list_title_color: String,
     pub play_music_list_border_color: String,
     pub play_music_list_id_color: String,
