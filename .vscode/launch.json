@@ -1,0 +1,42 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'music-player'",
+      "cargo": {
+        "args": [
+          "build",
+          "--bin=music-player",
+          "--package=music-player"
+        ],
+        "filter": {
+          "name": "music-player",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in executable 'music-player'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--bin=music-player",
+          "--package=music-player"
+        ],
+        "filter": {
+          "name": "music-player",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}

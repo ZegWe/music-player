@@ -1,5 +1,6 @@
 use std::io::{self, Stdout};
 use std::path::{self, PathBuf};
+use std::time::Duration;
 
 use exitfailure::ExitFailure;
 use rodio::Sink;
@@ -27,7 +28,7 @@ impl<'a> App<'a> {
     pub fn new(
         terminal: &'a mut Terminal<CrosstermBackend<Stdout>>,
         music_database: &str,
-        player: &'a mut rodio::Sink
+        player: &'a mut rodio::Sink,
     ) -> Result<App<'a>, ExitFailure> {
         let window_height = terminal.size().unwrap().height - 5;
         let current_directory = path::PathBuf::from(music_database);
@@ -238,6 +239,19 @@ impl<'a> App<'a> {
             self.player.play();
         } else {
             self.player.pause();
+        }
+    }
+
+    pub fn check_music_list(&mut self) {
+        if self.play_music_list.len() > self.player.len() {
+            for _ in 0..(self.play_music_list.len() - self.player.len()) {
+                self.play_music_list.remove(0);
+            }
+        }
+
+        if self.play_music_list.len() > 0 && !self.player.is_paused(){
+            let position = self.play_music_list[0].play_position.as_secs();
+            self.play_music_list[0].play_position = Duration::from_secs(position + 1);
         }
     }
 }

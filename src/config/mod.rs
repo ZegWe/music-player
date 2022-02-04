@@ -29,6 +29,11 @@ pub struct InitTheme {
     pub play_music_list_name_color: String,
     pub play_music_list_artist_color: String,
     pub play_music_list_album_color: String,
+    pub play_music_list_header_color: String,
+    pub playing_music_border_color: String,
+    pub gauge_color: String,
+    pub gauge_border_color: String,
+    pub gauge_label_color: String,
 }
 
 pub fn init() -> Result<InitConfig, ExitFailure> {

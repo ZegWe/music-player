@@ -7,10 +7,12 @@ use crate::config::InitTheme;
 use self::color::Theme;
 use self::music_list::draw_music_list;
 use self::play_music_list::draw_play_music_list;
-mod color;
+use self::playing_music::draw_playing_music;
+pub mod color;
 mod display;
 mod music_list;
 mod play_music_list;
+mod playing_music;
 
 pub fn handle_theme(init_theme: InitTheme) -> Theme {
     Theme::new(init_theme)
@@ -40,7 +42,9 @@ pub fn draw(app: &mut App, theme: &Theme) -> Result<(), ExitFailure> {
             .constraints([Constraint::Min(3), Constraint::Length(5)])
             .split(chunks[1]);
 
-        draw_play_music_list(f, chunks_right[0], &theme, &mut app.play_music_list);
+        draw_play_music_list(f, chunks_right[0], &theme, &app.play_music_list);
+
+        draw_playing_music(f, chunks_right[1], &theme, &app.play_music_list, app.player.is_paused());
     })?;
 
     Ok(())

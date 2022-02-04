@@ -22,7 +22,6 @@ pub fn handle_event(app: &mut App, music_database: &str) -> bool {
             KeyCode::Char('l') => app.open_folder(),
             KeyCode::Char('h') => app.back_previous_folder(music_database),
             KeyCode::Enter => app.add_music_to_list(),
-            // KeyCode::Char('p') => app.play_music_list(&player),
             KeyCode::Char(' ') => app.stop_or_start_play(),
             _ => {}
         }

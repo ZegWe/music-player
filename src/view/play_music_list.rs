@@ -35,7 +35,7 @@ pub fn draw_play_music_list<B: Backend>(
     frame: &mut Frame<B>,
     area: Rect,
     theme: &Theme,
-    music_list: &mut Vec<Music>,
+    music_list: &Vec<Music>,
 ) {
     let mut title_spans = Vec::new();
     // let mut title_spans = Spans::default();
@@ -109,19 +109,8 @@ fn draw_play_list<B: Backend>(
     frame: &mut Frame<B>,
     area: &Rect,
     theme: &Theme,
-    music_list: &mut Vec<Music>,
+    music_list: &Vec<Music>,
 ) {
-    //Create the list chunks
-    let inner_rect = Rect::new(area.x + 1, area.y + 1, area.width - 2, area.height - 2);
-    let chunks = Layout::default()
-        .direction(Direction::Horizontal)
-        .constraints([
-            Constraint::Percentage(45),
-            Constraint::Percentage(20),
-            Constraint::Percentage(35),
-        ])
-        .split(inner_rect);
-
     let mut names: Vec<Spans> = Vec::new();
     let mut artists: Vec<Spans> = Vec::new();
     let mut albums: Vec<Spans> = Vec::new();
@@ -130,7 +119,7 @@ fn draw_play_list<B: Backend>(
         let m = music.total_duration.as_secs() / 60;
         names.push(Spans::from(vec![
             Span::styled(
-                format!("{}.", i + 1),
+                format!("{:>2}.", i + 1),
                 Style::default().fg(theme.play_music_list_id_color),
             ),
             Span::styled(
@@ -153,6 +142,41 @@ fn draw_play_list<B: Backend>(
             Style::default().fg(theme.play_music_list_album_color),
         )]));
     }
+
+    names.insert(
+        0,
+        Spans::from(vec![Span::styled(
+            format!(
+                "{: >12}Name", ""
+            ),
+            Style::default().fg(theme.play_music_list_header_color),
+        )]),
+    );
+    artists.insert(
+        0,
+        Spans::from(vec![Span::styled(
+            "Artist",
+            Style::default().fg(theme.play_music_list_header_color),
+        )]),
+    );
+    albums.insert(
+        0,
+        Spans::from(vec![Span::styled(
+            "Album",
+            Style::default().fg(theme.play_music_list_header_color),
+        )]),
+    );
+
+    //Create the list chunks
+    let inner_rect = Rect::new(area.x + 1, area.y + 1, area.width - 2, area.height - 2);
+    let chunks = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([
+            Constraint::Percentage(45),
+            Constraint::Percentage(20),
+            Constraint::Percentage(35),
+        ])
+        .split(inner_rect);
 
     frame.render_widget(Paragraph::new(names), chunks[0]);
     frame.render_widget(Paragraph::new(artists), chunks[1]);

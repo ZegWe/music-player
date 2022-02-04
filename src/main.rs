@@ -1,4 +1,5 @@
 use std::io;
+use std::time::{Duration, Instant};
 
 use app::App;
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
@@ -28,26 +29,31 @@ fn main() -> Result<(), ExitFailure> {
 
     terminal.clear()?;
 
+    // Initialize App state
     let (_stream, stream_handle) = OutputStream::try_default()?;
     let mut sink = Sink::try_new(&stream_handle)?;
-
-    // Initialize App state
     let mut app = App::new(&mut terminal, &init_config.music_database, &mut sink)?;
 
-    // if music_list.len() > app.player.len() {
-    //     for _ in 0..(music_list.len() - player.len()) {
-    //         music_list.remove(0);
-    //     }
-    // }
-
-    //Main application loop
+    let tick_rate = Duration::from_secs(1);
+    let mut last_tick = Instant::now();
     loop {
         app.update_window_height();
         view::draw(&mut app, &theme)?;
 
-        if !handle_event(&mut app, &init_config.music_database) {
-            break;
-        };
+        let timeout = tick_rate
+            .checked_sub(last_tick.elapsed())
+            .unwrap_or_else(|| Duration::from_secs(0));
+
+        if crossterm::event::poll(timeout)? {
+            if !handle_event(&mut app, &init_config.music_database) {
+                break;
+            };
+        }
+
+        if last_tick.elapsed() >= tick_rate {
+            app.check_music_list();
+            last_tick = Instant::now();
+        }
     }
 
     disable_raw_mode()?;

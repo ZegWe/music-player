@@ -46,6 +46,11 @@ pub struct Theme {
     pub play_music_list_name_color: Color,
     pub play_music_list_artist_color: Color,
     pub play_music_list_album_color: Color,
+    pub play_music_list_header_color: Color,
+    pub playing_music_border_color: Color,
+    pub gauge_color: Color,
+    pub gauge_border_color: Color,
+    pub gauge_label_color: Color,
 }
 
 impl Theme {
@@ -72,6 +77,11 @@ impl Theme {
             play_music_list_name_color: parse_hex_color(&init_theme.play_music_list_name_color),
             play_music_list_artist_color: parse_hex_color(&init_theme.play_music_list_artist_color),
             play_music_list_album_color: parse_hex_color(&init_theme.play_music_list_album_color),
+            play_music_list_header_color: parse_hex_color(&init_theme.play_music_list_header_color),
+            playing_music_border_color: parse_hex_color(&init_theme.playing_music_border_color),
+            gauge_color: parse_hex_color(&init_theme.gauge_color),
+            gauge_border_color: parse_hex_color(&init_theme.gauge_border_color),
+            gauge_label_color: parse_hex_color(&init_theme.gauge_label_color),
         }
     }
 }
