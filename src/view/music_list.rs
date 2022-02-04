@@ -6,6 +6,7 @@ use tui::widgets::{Block, BorderType, Borders, Paragraph};
 use tui::Frame;
 
 use crate::file_ops::DirectoryItem;
+use crate::utils::split_path::split_path_to_name;
 
 use super::color::Theme;
 use super::display::Display;
@@ -43,7 +44,7 @@ pub fn draw_music_list<B: Backend>(
         for i in display.from..display.to {
             match &files[i] {
                 DirectoryItem::File(path) => {
-                    let name = get_file_name(path);
+                    let name = split_path_to_name(path);
 
                     music_names.push(get_spans(
                         "  ",
@@ -53,7 +54,7 @@ pub fn draw_music_list<B: Backend>(
                     ));
                 }
                 DirectoryItem::Directory(path) => {
-                    let name = get_file_name(path);
+                    let name = split_path_to_name(path);
 
                     music_names.push(get_spans(
                         "  ",
@@ -95,7 +96,7 @@ pub fn draw_music_list<B: Backend>(
         // Display search block
         let text = Text::from(Spans::from(vec![
             Span::styled("  ", Style::default().fg(theme.search_icon_color)),
-            Span::styled(search_string, Style::default().fg(Color::White)),
+            Span::styled(search_string, Style::default().fg(theme.search_font_color)),
         ]));
         let search = Paragraph::new(text).block(
             Block::default()
@@ -108,11 +109,6 @@ pub fn draw_music_list<B: Backend>(
         // Display musics and folders
         frame.render_widget(Paragraph::new(music_names), chunks[1]);
     }
-}
-
-fn get_file_name(path: &str) -> &str {
-    let str = path.split("\\").collect::<Vec<&str>>();
-    str.last().unwrap()
 }
 
 fn get_spans<'a>(icon: &'a str, name: &'a str, icon_color: Color, name_color: Color) -> Spans<'a> {

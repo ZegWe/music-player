@@ -18,6 +18,7 @@ pub struct InitTheme {
     pub list_selected_color: String,
     pub search_border_color: String,
     pub search_icon_color: String,
+    pub search_font_color: String,
     pub music_pic_color1: String,
     pub music_pic_color2: String,
     pub usage_color_left: String,

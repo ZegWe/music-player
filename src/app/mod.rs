@@ -10,6 +10,12 @@ use tui::Terminal;
 use crate::file_ops::{self, get_audio_source, DirectoryItem};
 use crate::music::Music;
 
+#[derive(PartialEq)]
+pub enum Mode {
+    Browse,
+    Search,
+}
+
 pub struct App<'a> {
     pub terminal: &'a mut Terminal<CrosstermBackend<Stdout>>,
     pub selection_index: Option<usize>,
@@ -20,6 +26,7 @@ pub struct App<'a> {
     pub window_height: u16,
     pub play_music_list: Vec<Music>,
     pub player: &'a mut Sink,
+    pub mode: Mode,
 
     max_file_selection: usize,
 }
@@ -43,6 +50,7 @@ impl<'a> App<'a> {
             window_height,
             play_music_list: Vec::new(),
             player,
+            mode: Mode::Browse,
             max_file_selection: 0,
         };
 
@@ -51,12 +59,37 @@ impl<'a> App<'a> {
         Ok(app)
     }
 
+    pub fn set_mode(&mut self, mode: Mode) {
+        self.mode = mode;
+    }
+
+    pub fn add_to_search_buffer(&mut self, char: char) {
+        self.search_buffer.push(char);
+    }
+
     pub fn update_window_height(&mut self) {
         self.window_height = self.terminal.size().unwrap().height - 5;
     }
 
     pub fn populate_files(&mut self) -> Result<(), io::Error> {
         let mut dir_items = file_ops::get_files_for_current_directory(self)?;
+        // Sort: folder > file
+        dir_items.sort_by(|a, b| b.cmp(a));
+
+        self.directory_contents = dir_items;
+        self.max_file_selection = self.directory_contents.len();
+
+        if self.max_file_selection == 0 {
+            self.selection_index = None;
+        } else {
+            self.selection_index = Some(0);
+        }
+
+        Ok(())
+    }
+
+    pub fn populate_search_file(&mut self, astrict: &str) -> Result<(), io::Error> {
+        let mut dir_items = file_ops::get_files_for_current_directory_astrict(self, astrict)?;
         // Sort: folder > file
         dir_items.sort_by(|a, b| b.cmp(a));
 
@@ -249,7 +282,7 @@ impl<'a> App<'a> {
             }
         }
 
-        if self.play_music_list.len() > 0 && !self.player.is_paused(){
+        if self.play_music_list.len() > 0 && !self.player.is_paused() {
             let position = self.play_music_list[0].play_position.as_secs();
             self.play_music_list[0].play_position = Duration::from_secs(position + 1);
         }

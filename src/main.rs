@@ -16,6 +16,7 @@ mod file_ops;
 mod handler;
 mod music;
 mod view;
+mod utils;
 
 fn main() -> Result<(), ExitFailure> {
     let init_config = config::init()?;
@@ -45,7 +46,7 @@ fn main() -> Result<(), ExitFailure> {
             .unwrap_or_else(|| Duration::from_secs(0));
 
         if crossterm::event::poll(timeout)? {
-            if !handle_event(&mut app, &init_config.music_database) {
+            if !handle_event(&mut app, &init_config.music_database)? {
                 break;
             };
         }

@@ -9,6 +9,7 @@ use rodio::decoder::DecoderError;
 use rodio::Decoder;
 
 use crate::app::App;
+use crate::utils::split_path::split_path_to_name;
 
 #[derive(Eq, PartialEq, PartialOrd, Ord, Debug, Clone)]
 pub enum DirectoryItem {
@@ -72,6 +73,38 @@ pub fn get_files_for_current_directory(app: &mut App) -> Result<Vec<DirectoryIte
     }
 
     Ok(files)
+}
+
+pub fn get_files_for_current_directory_astrict(
+    app: &mut App,
+    astrict: &str
+) -> Result<Vec<DirectoryItem>, io::Error> {
+        //Get list, unwrap, and convert results to &Path
+        let dir_items: Vec<PathBuf> = match read_dir(&app.current_directory) {
+            Ok(val) => val.map(|f| f.unwrap().path()).collect(),
+            Err(err) => return Err(err),
+        };
+    
+        //Convert items to DirectoryItem
+        let mut files: Vec<DirectoryItem> = Vec::new();
+        for item in dir_items {
+            let path_string = String::from(item.to_string_lossy());
+            if !split_path_to_name(&path_string).contains(astrict) {
+                continue;
+            };
+            if item.is_file() {
+                // Check whether it is an audio file
+                if check_audio_file(&item)? {
+                    let file = DirectoryItem::File(path_string);
+                    files.push(file);
+                }
+            } else {
+                let file = DirectoryItem::Directory(path_string);
+                files.push(file);
+            }
+        }
+    
+        Ok(files)
 }
 
 pub fn check_audio_file(path: &PathBuf) -> Result<bool, io::Error> {
