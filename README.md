@@ -1,6 +1,6 @@
 # A terminal music player written in the Rust language. (Windows)
 
-![running](./screenshots/run.png)
+![running](./screenshots/running.png)
 ![playing](./screenshots/playing.png)
 
 ### Requirements
