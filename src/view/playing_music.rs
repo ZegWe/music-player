@@ -1,10 +1,11 @@
 use tui::backend::Backend;
 use tui::layout::{Alignment, Rect};
-use tui::style::Style;
+use tui::style::{Modifier, Style};
 use tui::text::Span;
 use tui::widgets::{Block, BorderType, Borders, Gauge};
 use tui::Frame;
 
+use crate::app::PlayStyle;
 use crate::music::Music;
 
 use super::color::Theme;
@@ -15,13 +16,21 @@ pub fn draw_playing_music<B: Backend>(
     theme: &Theme,
     playing_music: &Option<Music>,
     is_paused: bool,
+    play_style: &PlayStyle,
 ) {
+    let mut play_style_icon = "劣";
     let mut label = "";
     let mut percent = 0;
+    match play_style {
+        PlayStyle::SingleCycle => play_style_icon = "綾",
+        _ => {}
+    }
+
     let mut block_title: Vec<Span> = vec![Span::styled(
-        " Playing: ",
+        " Playing ",
         Style::default().fg(theme.play_music_list_title_color),
     )];
+
     let mut gauge_title: Vec<Span> = Vec::new();
 
     if let Some(music) = playing_music {
@@ -31,8 +40,7 @@ pub fn draw_playing_music<B: Backend>(
             label = "  ";
         }
 
-        percent = ((music.play_position.as_secs_f32()
-            / music.total_duration.as_secs_f32())
+        percent = ((music.play_position.as_secs_f32() / music.total_duration.as_secs_f32())
             * (100 as f32))
             .round() as u16;
         if percent > 100 {
@@ -45,18 +53,21 @@ pub fn draw_playing_music<B: Backend>(
         ));
         block_title.push(Span::styled(
             format!("{} ", music.name),
-            Style::default().fg(theme.list_music_color),
+            Style::default()
+                .fg(theme.playing_music_name_color)
+                .add_modifier(Modifier::BOLD),
         ));
 
         let play_dur = music.play_position.as_secs();
         let total_dur = music.total_duration.as_secs();
         gauge_title.push(Span::styled(
             format!(
-                " [ {}m {}s : {}m {}s ] ",
+                " [ {}m {}s : {}m {}s ] {} ",
                 play_dur / 60,
                 play_dur % 60,
                 total_dur / 60,
-                total_dur % 60
+                total_dur % 60,
+                play_style_icon,
             ),
             Style::default().fg(theme.list_music_color),
         ))
@@ -78,7 +89,7 @@ pub fn draw_playing_music<B: Backend>(
                 .borders(Borders::ALL)
                 .border_type(BorderType::Thick)
                 .border_style(Style::default().fg(theme.gauge_border_color))
-                .title(gauge_title)
+                .title(gauge_title),
         )
         .gauge_style(Style::default().fg(theme.gauge_color))
         .label(Span::styled(

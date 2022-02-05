@@ -30,6 +30,7 @@ const USAGE: &[&str] = &[
     "Open folder                    ", "[l]    ", " ",
     "Back previous folder           ", "[h]    ", " ",
     "Into search mode               ", "[s]    ", " ",
+    "Into command mode              ", "[:]    ", " ",
     "Exit search or command mode    ", "[Esc]  ", " ",
     "Pause the music                ", "[Space]", " ",
     "Add music to the paly list     ", "[Enter]",
@@ -43,13 +44,16 @@ pub fn draw_play_music_list<B: Backend>(
     playing_music: &Option<Music>,
     is_paused: bool,
 ) {
-    let mut all_music_dur = 0;
+    let mut all_music_dur: u64 = 0;
     for music in music_list {
         all_music_dur += music.total_duration.as_secs();
     }
     if let Some(playing_music) = playing_music {
-        all_music_dur +=
-            playing_music.total_duration.as_secs() - playing_music.play_position.as_secs();
+        let playing_total_dur = playing_music.total_duration.as_secs();
+        let playing_position_dur = playing_music.play_position.as_secs();
+        if playing_position_dur <= playing_total_dur {
+            all_music_dur += playing_total_dur - playing_position_dur;
+        }
     }
     let all_music_dur_str = format!(
         "{}h {:0>2}m {:>2}s ",
@@ -64,7 +68,7 @@ pub fn draw_play_music_list<B: Backend>(
         if playing_music != &None {
             total_music += 1;
         }
-        
+
         title_spans.push(Span::styled(
             " Play list ",
             Style::default().fg(theme.play_music_list_title_color),

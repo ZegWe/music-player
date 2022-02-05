@@ -18,6 +18,11 @@ pub enum Mode {
     Command,
 }
 
+pub enum PlayStyle {
+    PlayOrder,
+    SingleCycle,
+}
+
 pub struct App<'a> {
     pub terminal: &'a mut Terminal<CrosstermBackend<Stdout>>,
     pub selection_index: Option<usize>,
@@ -31,7 +36,7 @@ pub struct App<'a> {
     pub playing_music: Option<Music>,
     pub player: &'a mut Sink,
     pub mode: Mode,
-    pub tips: Option<String>,
+    pub play_style: PlayStyle,
 
     max_file_selection: usize,
 }
@@ -58,7 +63,7 @@ impl<'a> App<'a> {
             playing_music: None,
             player,
             mode: Mode::Browse,
-            tips: None,
+            play_style: PlayStyle::PlayOrder,
             max_file_selection: 0,
         };
 
@@ -69,6 +74,10 @@ impl<'a> App<'a> {
 
     pub fn set_mode(&mut self, mode: Mode) {
         self.mode = mode;
+    }
+
+    pub fn set_play_style(&mut self, style: PlayStyle) {
+        self.play_style = style;
     }
 
     pub fn add_to_search_buffer(&mut self, char: char) {
@@ -309,14 +318,42 @@ impl<'a> App<'a> {
     }
 
     pub fn check_music_list(&mut self) {
-        if self.play_music_list.len() > 0 && self.player.empty() {
-            match get_audio_source(&self.play_music_list[0].path) {
-                Ok(source) => {
-                    self.player.append(source);
-                    let music = self.play_music_list.remove(0);
-                    self.playing_music = Some(music);
+        if self.player.empty() {
+            match self.play_style {
+                PlayStyle::PlayOrder => {
+                    if self.play_music_list.len() > 0 {
+                        match get_audio_source(&self.play_music_list[0].path) {
+                            Ok(source) => {
+                                self.player.append(source);
+                                let music = self.play_music_list.remove(0);
+                                self.playing_music = Some(music);
+                            }
+                            Err(err) => self.error = Some(err.to_string()),
+                        }
+                    } else {
+                        self.playing_music = None;
+                    }
                 }
-                Err(err) => self.error = Some(err.to_string()),
+                PlayStyle::SingleCycle => {
+                    if let Some(playing_music) = &mut self.playing_music {
+                        match get_audio_source(&playing_music.path) {
+                            Ok(source) => {
+                                playing_music.play_position = Duration::from_secs(0);
+                                self.player.append(source);
+                            }
+                            Err(err) => self.error = Some(err.to_string()),
+                        }
+                    } else if self.play_music_list.len() > 0 {
+                        match get_audio_source(&self.play_music_list[0].path) {
+                            Ok(source) => {
+                                self.player.append(source);
+                                let music = self.play_music_list.remove(0);
+                                self.playing_music = Some(music);
+                            }
+                            Err(err) => self.error = Some(err.to_string()),
+                        }
+                    }
+                }
             }
         }
 

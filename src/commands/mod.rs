@@ -1,4 +1,4 @@
-use crate::app::App;
+use crate::app::{App, PlayStyle};
 
 pub fn process_command(app: &mut App, command_string: String) {
     //split command buffer
@@ -12,6 +12,8 @@ pub fn process_command(app: &mut App, command_string: String) {
         "REMOVE" | "RM" => remove_command(app, splist_command),
         "CLEAR" | "CLS" => app.clear_play_music_list(),
         "ALL" => app.add_all_music_to_list(),
+        "ORDER" | "OD" => app.set_play_style(PlayStyle::PlayOrder),
+        "SINGLECYCLE" | "SC" => app.set_play_style(PlayStyle::SingleCycle),
         _ => app.error = Some(String::from("Not a command")),
     }
 
