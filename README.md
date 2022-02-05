@@ -74,4 +74,3 @@ theme:
 | Remove all music from the playlist                                        | clear \| cls      |
 | Set music to play in order                                                | order \| od       |
 | Set Set single loop                                                       | singlecycle \| sc |
-| Set Set single loop                                                       | singlecycle \| sc |
