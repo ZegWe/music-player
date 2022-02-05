@@ -1,6 +1,5 @@
 use std::time::Duration;
 
-use crate::app::App;
 use crate::file_ops::read_audio_file;
 use crate::utils::split_path::split_path_to_name;
 
@@ -16,12 +15,15 @@ pub struct Music {
 }
 
 impl Music {
-    pub fn new(app: &mut App, path: String) -> Option<Music> {
-        let name = split_path_to_name(&path).split('.').next().unwrap().to_string();
-
-        match read_audio_file(app, &path) {
-            Some(audio) => Some(Music {
-                path: path.clone(),
+    pub fn new(path: &str) -> Result<Music, String> {
+        let name = split_path_to_name(&path)
+            .split('.')
+            .next()
+            .unwrap()
+            .to_string();
+        match read_audio_file(path) {
+            Ok(audio) => Ok(Music {
+                path: path.to_string(),
                 name,
                 artist: audio.artist,
                 title: audio.title,
@@ -29,7 +31,7 @@ impl Music {
                 play_position: Duration::from_secs(0),
                 total_duration: audio.duration,
             }),
-            None => None,
+            Err(err) => Err(err.to_string()),
         }
     }
 }

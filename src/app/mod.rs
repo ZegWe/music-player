@@ -7,6 +7,7 @@ use rodio::Sink;
 use tui::backend::CrosstermBackend;
 use tui::Terminal;
 
+use crate::commands::process_command;
 use crate::file_ops::{self, get_audio_source, DirectoryItem};
 use crate::music::Music;
 
@@ -14,6 +15,7 @@ use crate::music::Music;
 pub enum Mode {
     Browse,
     Search,
+    Command,
 }
 
 pub struct App<'a> {
@@ -22,11 +24,14 @@ pub struct App<'a> {
     pub current_directory: path::PathBuf,
     pub directory_contents: Vec<DirectoryItem>,
     pub search_buffer: Vec<char>,
+    pub command_buffer: Vec<char>,
     pub error: Option<String>,
     pub window_height: u16,
     pub play_music_list: Vec<Music>,
+    pub playing_music: Option<Music>,
     pub player: &'a mut Sink,
     pub mode: Mode,
+    pub tips: Option<String>,
 
     max_file_selection: usize,
 }
@@ -46,11 +51,14 @@ impl<'a> App<'a> {
             current_directory,
             directory_contents: Vec::new(),
             search_buffer: Vec::new(),
+            command_buffer: Vec::new(),
             error: None,
             window_height,
             play_music_list: Vec::new(),
+            playing_music: None,
             player,
             mode: Mode::Browse,
+            tips: None,
             max_file_selection: 0,
         };
 
@@ -65,6 +73,10 @@ impl<'a> App<'a> {
 
     pub fn add_to_search_buffer(&mut self, char: char) {
         self.search_buffer.push(char);
+    }
+
+    pub fn add_to_command_buffer(&mut self, char: char) {
+        self.command_buffer.push(char);
     }
 
     pub fn update_window_height(&mut self) {
@@ -110,6 +122,15 @@ impl<'a> App<'a> {
         }
 
         search_string
+    }
+
+    pub fn get_command_strign(&mut self) -> String {
+        let mut command_string = String::new();
+        for c in &self.command_buffer {
+            command_string.push(*c);
+        }
+
+        command_string
     }
 
     pub fn get_selected_directory_item(&mut self) -> Option<DirectoryItem> {
@@ -250,40 +271,33 @@ impl<'a> App<'a> {
         }
     }
 
-    pub fn add_music_to_list(&mut self) -> Result<(), io::Error> {
-        if let Some(directory_item) = self.get_selected_directory_item() {
-            match directory_item {
+    pub fn add_music_to_list(&mut self) {
+        match self.get_selected_directory_item() {
+            Some(dir_item) => match dir_item {
                 DirectoryItem::File(path) => {
-                    // Add a music
-                    if let Some(music) = Music::new(self, path) {
-                        match get_audio_source(&music.path) {
-                            Ok(source) => {
-                                self.play_music_list.push(music);
-                                self.player.append(source);
-                            }
-                            Err(err) => self.error = Some(err.to_string()),
-                        };
+                    match Music::new(&path) {
+                        Ok(music) => self.play_music_list.push(music),
+                        Err(err) => self.error = Some(err),
                     };
                 }
-                DirectoryItem::Directory(path) => {
-                    // Add all the music in the folder
-                    let result = file_ops::get_files_for_specified_folder(&path)?;
-                    for path in result {
-                        if let Some(music) = Music::new(self, path) {
-                            match get_audio_source(&music.path) {
-                                Ok(source) => {
-                                    self.play_music_list.push(music);
-                                    self.player.append(source);
-                                }
-                                Err(err) => self.error = Some(err.to_string()),
-                            };
-                        };
-                    }
+                DirectoryItem::Directory(_) => self.error = Some(String::from("Is a directory")),
+            },
+            None => {}
+        };
+    }
+
+    pub fn add_all_music_to_list(&mut self) {
+        for item in &self.directory_contents {
+            match item {
+                DirectoryItem::File(path) => {
+                    match Music::new(&path) {
+                        Ok(music) => self.play_music_list.push(music),
+                        Err(err) => self.error = Some(err),
+                    };
                 }
+                _ => {}
             }
         }
-
-        Ok(())
     }
 
     pub fn stop_or_start_play(&mut self) {
@@ -295,15 +309,61 @@ impl<'a> App<'a> {
     }
 
     pub fn check_music_list(&mut self) {
-        if self.play_music_list.len() > self.player.len() {
-            for _ in 0..(self.play_music_list.len() - self.player.len()) {
-                self.play_music_list.remove(0);
+        if self.play_music_list.len() > 0 && self.player.empty() {
+            match get_audio_source(&self.play_music_list[0].path) {
+                Ok(source) => {
+                    self.player.append(source);
+                    let music = self.play_music_list.remove(0);
+                    self.playing_music = Some(music);
+                }
+                Err(err) => self.error = Some(err.to_string()),
             }
         }
 
-        if self.play_music_list.len() > 0 && !self.player.is_paused() {
-            let position = self.play_music_list[0].play_position.as_secs();
-            self.play_music_list[0].play_position = Duration::from_secs(position + 1);
+        if !self.player.is_paused() {
+            if let Some(playing_music) = &mut self.playing_music {
+                let position = playing_music.play_position.as_secs();
+                playing_music.play_position = Duration::from_secs(position + 1);
+            }
+        }
+    }
+
+    pub fn remove_play_list_by_id(&mut self, mut to_remove: Vec<usize>) {
+        to_remove.sort();
+        to_remove.reverse();
+        for index in to_remove {
+            if index <= self.play_music_list.len() {
+                self.play_music_list.remove(index);
+            }
+        }
+    }
+
+    pub fn clear_play_music_list(&mut self) {
+        if self.play_music_list.len() > 0 {
+            self.play_music_list = Vec::new();
+        }
+    }
+
+    pub fn execute_search(&mut self) {
+        let mut astrict = self.get_search_string();
+        if astrict.len() > 0 {
+            astrict.remove(0);
+        }
+        self.mode = Mode::Browse;
+        match self.populate_search_file(&astrict) {
+            Ok(_) => {}
+            Err(err) => self.error = Some(err.to_string()),
+        };
+    }
+
+    pub fn execute_command(&mut self) {
+        let command_string = self.get_command_strign();
+        self.command_buffer = Vec::new();
+        process_command(self, command_string);
+        self.set_mode(Mode::Browse);
+        match self.populate_files() {
+            Ok(_) => {}
+            Err(err) => self.error = Some(err.to_string()),
         }
     }
 }

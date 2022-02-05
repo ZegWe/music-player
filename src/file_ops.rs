@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use std::time::Duration;
 use std::{fs::read_dir, path::Path};
 
-use id3::{Tag, TagLike};
+use id3::{Tag, TagLike, Error};
 use rodio::decoder::DecoderError;
 use rodio::Decoder;
 
@@ -107,22 +107,6 @@ pub fn get_files_for_current_directory_astrict(
     Ok(files)
 }
 
-pub fn get_files_for_specified_folder(path: &str) -> Result<Vec<String>, io::Error> {
-    let mut result = Vec::new();
-    let dir_items: Vec<PathBuf> = match read_dir(path) {
-        Ok(val) => val.map(|f| f.unwrap().path()).collect(),
-        Err(err) => return Err(err),
-    };
-
-    for item in dir_items {
-        if check_audio_file(&item)? {
-            result.push(item.display().to_string());
-        }
-    };
-
-    Ok(result)
-}
-
 pub fn check_audio_file(path: &PathBuf) -> Result<bool, io::Error> {
     if let Some(t) = infer::get_from_path(path.to_str().unwrap())? {
         let mime_type = t.mime_type();
@@ -133,14 +117,8 @@ pub fn check_audio_file(path: &PathBuf) -> Result<bool, io::Error> {
     Ok(false)
 }
 
-pub fn read_audio_file<'a>(app: &mut App, path: &str) -> Option<Audio> {
-    let tag = match Tag::read_from_path(path) {
-        Ok(tag) => tag,
-        Err(err) => {
-            app.error = Some(err.to_string());
-            return None;
-        }
-    };
+pub fn read_audio_file<'a>(path: &str) -> Result<Audio, Error> {
+    let tag = Tag::read_from_path(path)?;
 
     let path = Path::new(path);
     let duration = match mp3_duration::from_path(&path) {
@@ -148,11 +126,10 @@ pub fn read_audio_file<'a>(app: &mut App, path: &str) -> Option<Audio> {
         Err(_) => Duration::from_secs(0),
     };
 
-    Some(Audio::new(tag, duration))
+    Ok(Audio::new(tag, duration))
 }
 
 pub fn get_audio_source(path: &str) -> Result<Decoder<File>, DecoderError> {
-    // let file = BufReader::new(File::open(path).unwrap());
     let file = File::open(path).unwrap();
     Decoder::new(file)
 }

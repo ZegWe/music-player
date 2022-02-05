@@ -17,6 +17,7 @@ mod handler;
 mod music;
 mod view;
 mod utils;
+mod commands;
 
 fn main() -> Result<(), ExitFailure> {
     let init_config = config::init()?;

@@ -20,6 +20,7 @@ pub fn handle_theme(init_theme: InitTheme) -> Theme {
 
 pub fn draw(app: &mut App, theme: &Theme) -> Result<(), ExitFailure> {
     let search_string = app.get_search_string();
+    let command_string = app.get_command_strign();
     app.terminal.draw(|f| {
         let chunks = Layout::default()
             .direction(Direction::Horizontal)
@@ -34,6 +35,7 @@ pub fn draw(app: &mut App, theme: &Theme) -> Result<(), ExitFailure> {
             &app.directory_contents,
             &app.selection_index,
             &search_string,
+            &command_string,
             &app.error,
         );
 
@@ -43,11 +45,23 @@ pub fn draw(app: &mut App, theme: &Theme) -> Result<(), ExitFailure> {
             .constraints([Constraint::Min(3), Constraint::Length(5)])
             .split(chunks[1]);
 
-        draw_play_music_list(f, chunks_right[0], &theme, &app.play_music_list);
+        draw_play_music_list(
+            f,
+            chunks_right[0],
+            &theme,
+            &app.play_music_list,
+            &app.playing_music,
+            app.player.is_paused()
+        );
 
-        draw_playing_music(f, chunks_right[1], &theme, &app.play_music_list, app.player.is_paused());
+        draw_playing_music(
+            f,
+            chunks_right[1],
+            &theme,
+            &app.playing_music,
+            app.player.is_paused(),
+        );
     })?;
 
-    app.error = None;
     Ok(())
 }

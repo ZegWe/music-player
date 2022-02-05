@@ -6,6 +6,10 @@ use crate::app::{self, App, Mode};
 pub fn handle_event(app: &mut App, music_database: &str) -> Result<bool, ExitFailure> {
     let mut is_loop = true;
 
+    if app.error != None {
+        app.error = None;
+    }
+
     //Handle input
     if let Event::Key(key) = event::read().unwrap() {
         if app.mode == Mode::Browse {
@@ -23,13 +27,14 @@ pub fn handle_event(app: &mut App, music_database: &str) -> Result<bool, ExitFai
                 KeyCode::Char('N') => app.previous_page(),
                 KeyCode::Char('l') => app.open_folder(),
                 KeyCode::Char('h') => app.back_previous_folder(music_database),
-                KeyCode::Enter => app.add_music_to_list()?,
+                KeyCode::Enter => app.add_music_to_list(),
                 KeyCode::Char(' ') => app.stop_or_start_play(),
-                KeyCode::Char(':') => app.set_mode(Mode::Search),
+                KeyCode::Char('|') => app.set_mode(Mode::Search),
+                KeyCode::Char(':') => app.set_mode(Mode::Command),
                 KeyCode::Esc => {
                     app.populate_files()?;
                     app.search_buffer = Vec::new();
-                },
+                }
                 _ => {}
             }
         }
@@ -37,14 +42,7 @@ pub fn handle_event(app: &mut App, music_database: &str) -> Result<bool, ExitFai
         if app.mode == Mode::Search {
             match key.code {
                 KeyCode::Char(chr) => app.add_to_search_buffer(chr),
-                KeyCode::Enter => {
-                    let mut astrict = app.get_search_string();
-                    if astrict.len() > 0 {
-                        astrict.remove(0);
-                    }
-                    app.populate_search_file(&astrict)?;
-                    app.mode = Mode::Browse;
-                },
+                KeyCode::Enter => app.execute_search(),
                 KeyCode::Backspace => {
                     if app.search_buffer.len() > 1 {
                         app.search_buffer.truncate(app.search_buffer.len() - 1);
@@ -53,6 +51,23 @@ pub fn handle_event(app: &mut App, music_database: &str) -> Result<bool, ExitFai
                 KeyCode::Esc => {
                     app.set_mode(app::Mode::Browse);
                     app.search_buffer = Vec::new();
+                }
+                _ => {}
+            }
+        }
+
+        if app.mode == app::Mode::Command {
+            match key.code {
+                KeyCode::Char(chr) => app.add_to_command_buffer(chr),
+                KeyCode::Enter => app.execute_command(),
+                KeyCode::Backspace => {
+                    if app.command_buffer.len() > 1 {
+                        app.command_buffer.truncate(app.command_buffer.len() - 1);
+                    };
+                }
+                KeyCode::Esc => {
+                    app.set_mode(app::Mode::Browse);
+                    app.command_buffer = Vec::new();
                 }
                 _ => {}
             }

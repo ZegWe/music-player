@@ -13,7 +13,7 @@ pub fn draw_playing_music<B: Backend>(
     frame: &mut Frame<B>,
     area: Rect,
     theme: &Theme,
-    play_music_list: &Vec<Music>,
+    playing_music: &Option<Music>,
     is_paused: bool,
 ) {
     let mut label = "";
@@ -24,15 +24,15 @@ pub fn draw_playing_music<B: Backend>(
     )];
     let mut gauge_title: Vec<Span> = Vec::new();
 
-    if play_music_list.len() > 0 {
+    if let Some(music) = playing_music {
         if is_paused {
             label = "  ";
         } else {
             label = "  ";
         }
 
-        percent = ((play_music_list[0].play_position.as_secs_f32()
-            / play_music_list[0].total_duration.as_secs_f32())
+        percent = ((music.play_position.as_secs_f32()
+            / music.total_duration.as_secs_f32())
             * (100 as f32))
             .round() as u16;
         if percent > 100 {
@@ -44,15 +44,15 @@ pub fn draw_playing_music<B: Backend>(
             Style::default().fg(theme.list_icon_color),
         ));
         block_title.push(Span::styled(
-            format!("{} ", play_music_list[0].name),
+            format!("{} ", music.name),
             Style::default().fg(theme.list_music_color),
         ));
 
-        let play_dur = play_music_list[0].play_position.as_secs();
-        let total_dur = play_music_list[0].total_duration.as_secs();
+        let play_dur = music.play_position.as_secs();
+        let total_dur = music.total_duration.as_secs();
         gauge_title.push(Span::styled(
             format!(
-                " {}m {}s : {}m {}s ",
+                " [ {}m {}s : {}m {}s ] ",
                 play_dur / 60,
                 play_dur % 60,
                 total_dur / 60,
@@ -78,7 +78,7 @@ pub fn draw_playing_music<B: Backend>(
                 .borders(Borders::ALL)
                 .border_type(BorderType::Thick)
                 .border_style(Style::default().fg(theme.gauge_border_color))
-                .title(gauge_title),
+                .title(gauge_title)
         )
         .gauge_style(Style::default().fg(theme.gauge_color))
         .label(Span::styled(

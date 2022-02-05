@@ -19,6 +19,7 @@ pub fn draw_music_list<B: Backend>(
     files: &Vec<DirectoryItem>,
     selected_index: &Option<usize>,
     search_string: &str,
+    command_string: &str,
     error: &Option<String>,
 ) {
     let selected_index = match selected_index {
@@ -102,8 +103,10 @@ pub fn draw_music_list<B: Backend>(
     if let Some(error) = error {
         // Display error block
         draw_error(frame, chunks[0], error);
-    } else {
+    } else if command_string.len() != 0 {
         // Display search block
+        draw_command(frame, chunks[0], theme, command_string);
+    } else {
         draw_search(frame, chunks[0], theme, search_string);
     }
 
@@ -132,11 +135,26 @@ fn draw_search<B: Backend>(frame: &mut Frame<B>, area: Rect, theme: &Theme, sear
     frame.render_widget(search, area);
 }
 
+fn draw_command<B: Backend>(frame: &mut Frame<B>, area: Rect, theme: &Theme, command_string: &str) {
+    let text = Text::from(Spans::from(vec![Span::styled(
+        command_string,
+        Style::default().fg(theme.command_font_color),
+    )]));
+    let command_paragraph = Paragraph::new(text).block(
+        Block::default()
+            .borders(Borders::ALL)
+            .border_type(BorderType::Rounded)
+            .title(" Command ")
+            .style(Style::default().fg(theme.command_border_color)),
+    );
+    frame.render_widget(command_paragraph, area);
+}
+
 fn draw_error<B: Backend>(frame: &mut Frame<B>, area: Rect, error: &str) {
     let text = Spans::from(Span::styled(error, Style::default().fg(Color::LightRed)));
     let err_paragraph = Paragraph::new(text).block(
         Block::default()
-            .title(Span::styled("Error", Style::default().fg(Color::LightRed)))
+            .title(Span::styled(" Error ", Style::default().fg(Color::LightRed)))
             .borders(Borders::ALL)
             .border_type(BorderType::Rounded)
             .style(Style::default().fg(Color::LightRed)),
