@@ -1,4 +1,4 @@
 pub fn split_path_to_name(path: &str) -> &str {
-    let str = path.split("\\").collect::<Vec<&str>>();
-    str.last().unwrap()
+    let p = std::path::Path::new(path);
+    p.file_name().unwrap().to_str().unwrap()
 }

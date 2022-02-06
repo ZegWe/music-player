@@ -44,12 +44,12 @@ pub struct InitTheme {
 pub fn init() -> Result<InitConfig, ExitFailure> {
     match dirs::home_dir() {
         Some(home_path) => {
-            let config_path = format!(
-                "{}\\.config\\music_player\\config.yml",
-                home_path.to_str().unwrap()
-            );
-
-            let file = std::fs::File::open(config_path)?;
+            let mut pathbuf = std::path::PathBuf::new();
+            pathbuf.push(home_path.to_str().unwrap());
+            pathbuf.push(".config");
+            pathbuf.push("music_player");
+            pathbuf.push("config.yml");
+            let file = std::fs::File::open(pathbuf)?;
             let init_config: InitConfig = serde_yaml::from_reader(file)?;
 
             Ok(init_config)
