@@ -34,7 +34,7 @@ const USAGE: &[&str] = &[
     "Exit program                   ", "[q]    ", " ",
     "Exit search or command mode    ", "[Esc]  ", " ",
     "Pause the music                ", "[Space]", " ",
-    "Add music to the paly list     ", "[Enter]", " ",
+    "Add music to the paly list     ", "[Enter]",
 ];
 
 pub fn draw_play_music_list<B: Backend>(
