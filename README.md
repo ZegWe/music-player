@@ -49,6 +49,7 @@ theme:
 
 | Description                  | Event                  |
 | ---------------------------- | ---------------------- |
+| Exit program                 | q                      |
 | Move selection down          | j \| \<Down Arrow Key> |
 | Move selection up            | k \| \<Up Arrow Key>   |
 | Move selection down 5 steps  | J                      |
