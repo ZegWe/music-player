@@ -1,4 +1,4 @@
-# A terminal music player written in the Rust language. (Windows)
+# A terminal music player written in the Rust language.
 
 ![running](./screenshots/running.png)
 ![playing](./screenshots/playing.png)
