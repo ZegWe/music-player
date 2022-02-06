@@ -130,7 +130,7 @@ impl<'a> App<'a> {
             search_string.push(*c);
         }
 
-        search_string
+        search_string.trim().to_string()
     }
 
     pub fn get_command_strign(&mut self) -> String {
