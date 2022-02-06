@@ -2,12 +2,15 @@ use crate::app::{App, PlayStyle};
 
 pub fn process_command(app: &mut App, command_string: String) {
     //split command buffer
-    let splist_command: Vec<String> = command_string
+    let mut splist_command: Vec<String> = command_string
         .trim_start_matches(":")
         .split_ascii_whitespace()
         .map(String::from)
         .collect();
 
+    if splist_command.len() == 0 {
+        splist_command.append(&mut vec![String::new()]);
+    }
     match splist_command[0].to_ascii_uppercase().as_ref() {
         "REMOVE" | "RM" => remove_command(app, splist_command),
         "CLEAR" | "CLS" => app.clear_play_music_list(),
