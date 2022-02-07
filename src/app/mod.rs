@@ -10,8 +10,6 @@ use tui::Terminal;
 use crate::commands::process_command;
 use crate::file_ops::{self, get_audio_source, DirectoryItem};
 use crate::music::Music;
-use crate::utils;
-use crate::utils::split_path::split_path_to_name;
 
 #[derive(PartialEq)]
 pub enum Mode {
