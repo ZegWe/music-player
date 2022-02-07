@@ -10,6 +10,8 @@ use tui::Terminal;
 use crate::commands::process_command;
 use crate::file_ops::{self, get_audio_source, DirectoryItem};
 use crate::music::Music;
+use crate::utils;
+use crate::utils::split_path::split_path_to_name;
 
 #[derive(PartialEq)]
 pub enum Mode {
@@ -256,16 +258,10 @@ impl<'a> App<'a> {
         let current_directory = self.current_directory.clone();
 
         if !current_directory.eq(&music_database) {
-            let current_dir_str = current_directory.display().to_string();
-            let current_dir_split: Vec<&str> = current_dir_str.split_inclusive("\\").collect();
-
-            if current_dir_split.len() > 1 {
-                let mut previous = String::new();
-                for i in 0..current_dir_split.len() - 1 {
-                    previous = previous + current_dir_split[i];
-                }
+            let mut ancestors = current_directory.ancestors();
+            ancestors.next();
+            if let Some(previous) = ancestors.next() {
                 self.current_directory = PathBuf::from(previous);
-
                 if let Err(err) = self.populate_files() {
                     self.current_directory = current_directory;
                     self.error = Some(err.to_string());
@@ -276,7 +272,7 @@ impl<'a> App<'a> {
                         self.selection_index = Some(0);
                     }
                 };
-            }
+            };
         }
     }
 
