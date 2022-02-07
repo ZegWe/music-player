@@ -3,7 +3,7 @@ use std::path::{self, PathBuf};
 use std::time::Duration;
 
 use exitfailure::ExitFailure;
-use rodio::Sink;
+use rodio::{OutputStreamHandle, Sink};
 use tui::backend::CrosstermBackend;
 use tui::Terminal;
 
@@ -34,7 +34,8 @@ pub struct App<'a> {
     pub window_height: u16,
     pub play_music_list: Vec<Music>,
     pub playing_music: Option<Music>,
-    pub player: &'a mut Sink,
+    pub stream_handle: OutputStreamHandle,
+    pub player: Sink,
     pub mode: Mode,
     pub play_style: PlayStyle,
 
@@ -45,10 +46,12 @@ impl<'a> App<'a> {
     pub fn new(
         terminal: &'a mut Terminal<CrosstermBackend<Stdout>>,
         music_database: &str,
-        player: &'a mut rodio::Sink,
+        stream_handle: OutputStreamHandle,
     ) -> Result<App<'a>, ExitFailure> {
         let window_height = terminal.size().unwrap().height - 5;
         let current_directory = path::PathBuf::from(music_database);
+
+        let player = Sink::try_new(&stream_handle)?; // Music player
 
         let mut app = App {
             terminal,
@@ -61,6 +64,7 @@ impl<'a> App<'a> {
             window_height,
             play_music_list: Vec::new(),
             playing_music: None,
+            stream_handle,
             player,
             mode: Mode::Browse,
             play_style: PlayStyle::PlayOrder,
@@ -70,6 +74,11 @@ impl<'a> App<'a> {
         app.populate_files()?;
 
         Ok(app)
+    }
+
+    fn new_sink(&mut self) -> Result<(), ExitFailure> {
+        self.player = Sink::try_new(&self.stream_handle)?;
+        Ok(())
     }
 
     pub fn set_mode(&mut self, mode: Mode) {
@@ -311,23 +320,31 @@ impl<'a> App<'a> {
         }
     }
 
+    pub fn play_next_music(&mut self) {
+        if !self.player.empty() {
+            self.new_sink().unwrap();
+        }
+        if self.play_music_list.len() > 0 {
+            match get_audio_source(&self.play_music_list[0].path) {
+                Ok(source) => {
+                    self.player.append(source);
+                    let music = self.play_music_list.remove(0);
+                    self.playing_music = Some(music);
+                }
+                Err(err) => {
+                    self.error = Some(err.to_string());
+                    self.playing_music = None;
+                }
+            }
+        } else {
+            self.playing_music = None;
+        }
+    }
+
     pub fn check_music_list(&mut self) {
         if self.player.empty() {
             match self.play_style {
-                PlayStyle::PlayOrder => {
-                    if self.play_music_list.len() > 0 {
-                        match get_audio_source(&self.play_music_list[0].path) {
-                            Ok(source) => {
-                                self.player.append(source);
-                                let music = self.play_music_list.remove(0);
-                                self.playing_music = Some(music);
-                            }
-                            Err(err) => self.error = Some(err.to_string()),
-                        }
-                    } else {
-                        self.playing_music = None;
-                    }
-                }
+                PlayStyle::PlayOrder => self.play_next_music(),
                 PlayStyle::SingleCycle => {
                     if let Some(playing_music) = &mut self.playing_music {
                         match get_audio_source(&playing_music.path) {
@@ -337,15 +354,8 @@ impl<'a> App<'a> {
                             }
                             Err(err) => self.error = Some(err.to_string()),
                         }
-                    } else if self.play_music_list.len() > 0 {
-                        match get_audio_source(&self.play_music_list[0].path) {
-                            Ok(source) => {
-                                self.player.append(source);
-                                let music = self.play_music_list.remove(0);
-                                self.playing_music = Some(music);
-                            }
-                            Err(err) => self.error = Some(err.to_string()),
-                        }
+                    } else {
+                        self.play_next_music();
                     }
                 }
             }

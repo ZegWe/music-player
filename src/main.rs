@@ -5,7 +5,7 @@ use app::App;
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
 use exitfailure::ExitFailure;
 use handler::event::handle_event;
-use rodio::{OutputStream, Sink};
+use rodio::OutputStream;
 use tui::backend::CrosstermBackend;
 use tui::Terminal;
 use view::handle_theme;
@@ -33,8 +33,7 @@ fn main() -> Result<(), ExitFailure> {
 
     // Initialize App state
     let (_stream, stream_handle) = OutputStream::try_default()?;
-    let mut sink = Sink::try_new(&stream_handle)?; // Music player
-    let mut app = App::new(&mut terminal, &init_config.music_database, &mut sink)?;
+    let mut app = App::new(&mut terminal, &init_config.music_database, stream_handle)?;
 
     let tick_rate = Duration::from_secs(1);
     let mut last_tick = Instant::now();
