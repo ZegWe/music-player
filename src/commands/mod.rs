@@ -18,6 +18,7 @@ pub fn process_command(app: &mut App, command_string: String) {
         "ORDER" | "OD" => app.set_play_style(PlayStyle::PlayOrder),
         "SINGLECYCLE" | "SC" => app.set_play_style(PlayStyle::SingleCycle),
         "NEXT" | "N" => app.play_next_music(),
+        "SHUFFLE" | "SH" => app.shuffle_playlist(),
         _ => app.error = Some(String::from("Not a command")),
     }
 

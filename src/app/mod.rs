@@ -3,6 +3,7 @@ use std::path::{self, PathBuf};
 use std::time::Duration;
 
 use exitfailure::ExitFailure;
+use rand::prelude::SliceRandom;
 use rodio::{OutputStreamHandle, Sink};
 use tui::backend::CrosstermBackend;
 use tui::Terminal;
@@ -366,6 +367,12 @@ impl<'a> App<'a> {
                 let position = playing_music.play_position.as_secs();
                 playing_music.play_position = Duration::from_secs(position + 1);
             }
+        }
+    }
+
+    pub fn shuffle_playlist(&mut self) {
+        if self.play_music_list.len() > 1 {
+            self.play_music_list.shuffle(&mut rand::thread_rng());
         }
     }
 
