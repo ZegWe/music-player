@@ -180,12 +180,12 @@ fn draw_play_list<B: Backend>(
             ),
         ]));
         artists.push(Spans::from(vec![Span::styled(
-            &playing_music.artist,
+            format!(" {}", &playing_music.artist),
             Style::default().fg(theme.play_music_list_artist_color),
         )]));
 
         albums.push(Spans::from(vec![Span::styled(
-            &playing_music.album,
+            format!(" {}", &playing_music.album),
             Style::default().fg(theme.play_music_list_album_color),
         )]));
     }
@@ -209,12 +209,12 @@ fn draw_play_list<B: Backend>(
         ]));
 
         artists.push(Spans::from(vec![Span::styled(
-            &music.artist,
+            format!(" {}", &music.artist),
             Style::default().fg(theme.play_music_list_artist_color),
         )]));
 
         albums.push(Spans::from(vec![Span::styled(
-            &music.album,
+            format!(" {}", &music.album),
             Style::default().fg(theme.play_music_list_album_color),
         )]));
     }
@@ -229,14 +229,14 @@ fn draw_play_list<B: Backend>(
     artists.insert(
         0,
         Spans::from(vec![Span::styled(
-            "Artist",
+            " Artist",
             Style::default().fg(theme.play_music_list_header_color),
         )]),
     );
     albums.insert(
         0,
         Spans::from(vec![Span::styled(
-            "Album",
+            " Album",
             Style::default().fg(theme.play_music_list_header_color),
         )]),
     );
@@ -246,15 +246,13 @@ fn draw_play_list<B: Backend>(
     let chunks = Layout::default()
         .direction(Direction::Horizontal)
         .constraints([
-            Constraint::Percentage(40),
-            Constraint::Percentage(5),
+            Constraint::Percentage(45),
             Constraint::Percentage(20),
-            Constraint::Percentage(5),
-            Constraint::Percentage(30),
+            Constraint::Percentage(35),
         ])
         .split(inner_rect);
 
     frame.render_widget(Paragraph::new(names), chunks[0]);
-    frame.render_widget(Paragraph::new(artists), chunks[2]);
-    frame.render_widget(Paragraph::new(albums), chunks[4]);
+    frame.render_widget(Paragraph::new(artists), chunks[1]);
+    frame.render_widget(Paragraph::new(albums), chunks[2]);
 }
