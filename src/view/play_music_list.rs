@@ -246,13 +246,15 @@ fn draw_play_list<B: Backend>(
     let chunks = Layout::default()
         .direction(Direction::Horizontal)
         .constraints([
-            Constraint::Percentage(45),
+            Constraint::Percentage(40),
+            Constraint::Percentage(5),
             Constraint::Percentage(20),
-            Constraint::Percentage(35),
+            Constraint::Percentage(5),
+            Constraint::Percentage(30),
         ])
         .split(inner_rect);
 
     frame.render_widget(Paragraph::new(names), chunks[0]);
-    frame.render_widget(Paragraph::new(artists), chunks[1]);
-    frame.render_widget(Paragraph::new(albums), chunks[2]);
+    frame.render_widget(Paragraph::new(artists), chunks[2]);
+    frame.render_widget(Paragraph::new(albums), chunks[4]);
 }

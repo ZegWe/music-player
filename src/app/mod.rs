@@ -1,6 +1,6 @@
 use std::io::{self, Stdout};
 use std::path::{self, PathBuf};
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use exitfailure::ExitFailure;
 use rand::prelude::SliceRandom;
@@ -316,6 +316,11 @@ impl<'a> App<'a> {
     pub fn stop_or_start_play(&mut self) {
         if self.player.is_paused() {
             self.player.play();
+            if let Some(music) = &mut self.playing_music {
+                if let Some(start_time) = &mut music.start_time {
+                    *start_time = Instant::now() - music.play_position;
+                }
+            }
         } else {
             self.player.pause();
         }
@@ -329,7 +334,8 @@ impl<'a> App<'a> {
             match get_audio_source(&self.play_music_list[0].path) {
                 Ok(source) => {
                     self.player.append(source);
-                    let music = self.play_music_list.remove(0);
+                    let mut music = self.play_music_list.remove(0);
+                    music.start_time = Some(Instant::now());
                     self.playing_music = Some(music);
                 }
                 Err(err) => {
@@ -352,6 +358,7 @@ impl<'a> App<'a> {
                             Ok(source) => {
                                 playing_music.play_position = Duration::from_secs(0);
                                 self.player.append(source);
+                                playing_music.start_time = Some(Instant::now());
                             }
                             Err(err) => self.error = Some(err.to_string()),
                         }
@@ -364,8 +371,7 @@ impl<'a> App<'a> {
 
         if !self.player.is_paused() {
             if let Some(playing_music) = &mut self.playing_music {
-                let position = playing_music.play_position.as_secs();
-                playing_music.play_position = Duration::from_secs(position + 1);
+                playing_music.play_position = playing_music.start_time.unwrap().elapsed();
             }
         }
     }

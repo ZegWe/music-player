@@ -1,5 +1,5 @@
 use std::io;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 use app::App;
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
@@ -11,13 +11,13 @@ use tui::Terminal;
 use view::handle_theme;
 
 mod app;
+mod commands;
 mod config;
 mod file_ops;
 mod handler;
 mod music;
-mod view;
 mod utils;
-mod commands;
+mod view;
 
 fn main() -> Result<(), ExitFailure> {
     let init_config = config::init()?;
@@ -35,26 +35,16 @@ fn main() -> Result<(), ExitFailure> {
     let (_stream, stream_handle) = OutputStream::try_default()?;
     let mut app = App::new(&mut terminal, &init_config.music_database, stream_handle)?;
 
-    let tick_rate = Duration::from_secs(1);
-    let mut last_tick = Instant::now();
     loop {
         app.update_window_height();
         view::draw(&mut app, &theme)?;
 
-        let timeout = tick_rate
-            .checked_sub(last_tick.elapsed())
-            .unwrap_or_else(|| Duration::from_secs(0));
-
-        if crossterm::event::poll(timeout)? {
+        if crossterm::event::poll(Duration::from_millis(100))? {
             if !handle_event(&mut app, &init_config.music_database)? {
                 break;
             };
         }
-
-        if last_tick.elapsed() >= tick_rate {
-            app.check_music_list();
-            last_tick = Instant::now();
-        }
+        app.check_music_list();
     }
 
     disable_raw_mode()?;
