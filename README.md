@@ -5,6 +5,7 @@
 
 ## Requirements
 配置文件存放在: 用户目录\\.config\music_player\config.yml
+
 Configuration file path: ~\\.config\music_player\config.yml
 
 ```yml
