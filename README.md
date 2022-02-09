@@ -5,7 +5,7 @@
 
 ## Requirements
 
-Configuration file path: C:\Users\xxx\\.config\music_player\config.yml
+Configuration file path: ~\.config\music_player\config.yml
 
 ```yml
 # Path to store music
