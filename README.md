@@ -4,12 +4,16 @@
 ![playing](./screenshots/playing.png)
 
 ## Requirements
-
+配置文件存放在: 用户目录\\.config\music_player\config.yml
 Configuration file path: ~\\.config\music_player\config.yml
 
 ```yml
 # Path to store music
+# 存放音乐的路径
 music_database: ''
+
+# Color
+# 主题配色
 theme:
   list_title_color: '#ffaaff'
   list_title_page_color: '#ffb747'
