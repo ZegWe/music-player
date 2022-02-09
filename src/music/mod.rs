@@ -16,12 +16,11 @@ pub struct Music {
 
 impl Music {
     pub fn new(path: &str) -> Result<Music, String> {
-        let name = split_path_to_name(&path)
-            .split('.')
-            .next()
-            .unwrap()
-            .to_string();
-        match read_audio_file(path) {
+        let mut file_split = split_path_to_name(&path).split('.');
+        let name = file_split.next().unwrap().to_string();
+        let extension = file_split.next().unwrap();
+
+        match read_audio_file(path, extension) {
             Ok(audio) => Ok(Music {
                 path: path.to_string(),
                 name,
@@ -31,7 +30,7 @@ impl Music {
                 play_position: Duration::from_secs(0),
                 total_duration: audio.duration,
             }),
-            Err(err) => Err(err.to_string()),
+            Err(err) => Err(err),
         }
     }
 }
