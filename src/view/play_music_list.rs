@@ -28,13 +28,15 @@ const USAGE: &[&str] = &[
     "Next page                      ", "[n]    ", " ",
     "Previous page                  ", "[N]    ", " ",
     "Open folder                    ", "[l]    ", " ",
-    "Back previous folder           ", "[h]    ", " ",
-    "Into search mode               ", "[|]    ", " ",
-    "Into command mode              ", "[:]    ", " ",
+    "Back to previous folder        ", "[h]    ", " ",
+    "Enter search mode              ", "[|]    ", " ",
+    "Enter command mode             ", "[:]    ", " ",
     "Exit program                   ", "[q]    ", " ",
     "Exit search or command mode    ", "[Esc]  ", " ",
-    "Pause the music                ", "[Space]", " ",
-    "Add music to the paly list     ", "[Enter]",
+    "Pause or resume the music      ", "[Space]", " ",
+    "Decrease volume                ", "[-]    ", " ",
+    "Increase volume                ", "[+, =] ", " ",
+    "Add music to the playlist      ", "[Enter]",
 ];
 
 pub fn draw_play_music_list<B: Backend>(
@@ -76,7 +78,7 @@ pub fn draw_play_music_list<B: Backend>(
         ));
         title_spans.push(Span::styled(" | ", Style::default().fg(Color::Yellow)));
         title_spans.push(Span::styled(
-            format!(" Total {} music ", total_music),
+            format!(" {} songs ", total_music),
             Style::default().fg(theme.play_music_list_title_color),
         ));
         title_spans.push(Span::styled(" | ", Style::default().fg(Color::Yellow)));
