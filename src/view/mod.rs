@@ -60,6 +60,7 @@ pub fn draw(app: &mut App, theme: &Theme) -> Result<(), ExitFailure> {
             &theme,
             &app.playing_music,
             app.player.is_paused(),
+            app.player.volume(),
             &app.play_style
         );
     })?;
