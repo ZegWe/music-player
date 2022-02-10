@@ -34,6 +34,8 @@ const USAGE: &[&str] = &[
     "Exit program                   ", "[q]    ", " ",
     "Exit search or command mode    ", "[Esc]  ", " ",
     "Pause the music                ", "[Space]", " ",
+    "Decrease volume                ", "[-]    ", " ",
+    "Increase volume                ", "[+, =] ", " ",
     "Add music to the paly list     ", "[Enter]",
 ];
 

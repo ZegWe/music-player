@@ -29,6 +29,9 @@ pub fn handle_event(app: &mut App, music_database: &str) -> Result<bool, ExitFai
                 KeyCode::Char('h') => app.back_previous_folder(music_database),
                 KeyCode::Enter => app.add_music_to_list(),
                 KeyCode::Char(' ') => app.stop_or_start_play(),
+                KeyCode::Char('-') => app.update_volume(&|v| v - 0.05),
+                KeyCode::Char('=') => app.update_volume(&|v| v + 0.05),
+                KeyCode::Char('+') => app.update_volume(&|v| v + 0.05),
                 KeyCode::Char('|') => app.set_mode(Mode::Search),
                 KeyCode::Char(':') => app.set_mode(Mode::Command),
                 KeyCode::Esc => {
