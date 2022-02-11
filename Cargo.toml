@@ -15,7 +15,7 @@ path = "src/main.rs"
 
 [dependencies]
 rodio = "0.15"
-id3 = "1.0.2"
+audiotags = "0.2"
 mp3-duration = "0.1.10"
 exitfailure = "0.5.1"
 dirs = "4.0.0"

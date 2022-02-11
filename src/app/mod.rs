@@ -348,6 +348,10 @@ impl<'a> App<'a> {
         }
     }
 
+    pub fn update_volume(&mut self, f: &dyn Fn(f32) -> f32) {
+        self.player.set_volume(f(self.player.volume()));
+    }
+
     pub fn check_music_list(&mut self) {
         if self.player.empty() {
             match self.play_style {

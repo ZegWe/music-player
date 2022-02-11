@@ -16,6 +16,7 @@ pub fn draw_playing_music<B: Backend>(
     theme: &Theme,
     playing_music: &Option<Music>,
     is_paused: bool,
+    volume: f32,
     play_style: &PlayStyle,
 ) {
     let mut play_style_icon = "劣";
@@ -71,6 +72,24 @@ pub fn draw_playing_music<B: Backend>(
             ),
             Style::default().fg(theme.list_music_color),
         ))
+    }
+
+    // Volume
+    {
+        block_title.push(Span::styled(
+            match volume {
+                v if v >= 0.7 => " ",
+                v if v >= 0.3 => "奔",
+                v if v > 0.0 => "奄",
+                _ => "婢 ",
+            },
+            Style::default().fg(theme.volume_icon_color),
+        ));
+        let volume = if volume > 0.0 { volume } else { 0.0 };
+        block_title.push(Span::styled(
+            format!("{:3.0}% ", volume * 100.0),
+            Style::default().fg(theme.volume_value_color),
+        ));
     }
 
     // Playing music block

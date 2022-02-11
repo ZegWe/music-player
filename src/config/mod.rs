@@ -36,6 +36,8 @@ pub struct InitTheme {
     pub play_music_list_header_color: String,
     pub playing_music_border_color: String,
     pub playing_music_name_color: String,
+    pub volume_icon_color: String,
+    pub volume_value_color: String,
     pub gauge_color: String,
     pub gauge_border_color: String,
     pub gauge_label_color: String,
@@ -49,7 +51,10 @@ pub fn init() -> Result<InitConfig, ExitFailure> {
             pathbuf.push(".config");
             pathbuf.push("music_player");
             pathbuf.push("config.yml");
-            let file = std::fs::File::open(pathbuf)?;
+            let file = match std::fs::File::open(pathbuf) {
+                Ok(file) => file,
+                Err(_) => panic!("Configuration file not found"),
+            };
             let init_config: InitConfig = serde_yaml::from_reader(file)?;
 
             Ok(init_config)

@@ -4,12 +4,17 @@
 ![playing](./screenshots/playing.png)
 
 ## Requirements
+配置文件存放在: 用户目录\\.config\music_player\config.yml
 
-Configuration file path: C:\Users\xxx\\.config\music_player\config.yml
+Configuration file path: ~\\.config\music_player\config.yml
 
 ```yml
 # Path to store music
+# 存放音乐的路径
 music_database: ''
+
+# Color
+# 主题配色
 theme:
   list_title_color: '#ffaaff'
   list_title_page_color: '#ffb747'
@@ -38,6 +43,8 @@ theme:
   play_music_list_header_color: '#d15aa7'
   playing_music_border_color: '#81a8fd'
   playing_music_name_color: '#d8ce2e'
+  volume_icon_color: '#9998af'
+  volume_value_color: '#dcd8da'
   gauge_color: '#cece68'
   gauge_border_color: '#abcc7e'
   gauge_label_color: '#fa4d70'
@@ -59,19 +66,21 @@ theme:
 | Next page                    | n                      |
 | Previous page                | N                      |
 | Open folder                  | l                      |
-| Back previous folder         | h                      |
-| Into command mode            | :                      |
-| Into search mode             | \|                     |
+| Back to the previous folder  | h                      |
+| Enter command mode           | :                      |
+| Enter search mode            | \|                     |
 | Exit search or command mode  | \<Esc>                 |
-| Pause the music              | \<Space>               |
-| Add music to the paly list   | \<Enter>               |
+| Pause or resume              | \<Space>               |
+| Increase the volume          | + \| =                 |
+| Decrease the volume          | -                      |
+| Add music to the playlist    | \<Enter>               |
 
 ### Command
 
 | Description                                                               | Command           |
 | ------------------------------------------------------------------------- | ----------------- |
-| Add all the music in the current directory to the playlist                | all               |
-| Removes the specified music from the playlist (Multiple can be specified) | rm \<music_id>    |
-| Remove all music from the playlist                                        | clear \| cls      |
-| Set music to play in order                                                | order \| od       |
-| Set Set single loop                                                       | singlecycle \| sc |
+| Add all songs in the current directory to the playlist                    | all               |
+| Removes the specified song from the playlist (Multiple can be specified)  | rm \<music_id>    |
+| Remove all songs from the playlist                                        | clear \| cls      |
+| Play the whole playlist (Repeat: on)                                      | order \| od       |
+| Put the current song on repeat (Repeat: off)                              | singlecycle \| sc |

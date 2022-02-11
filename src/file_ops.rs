@@ -1,12 +1,13 @@
+use std::fs::read_dir;
 use std::fs::File;
 use std::io;
 use std::path::PathBuf;
 use std::time::Duration;
-use std::{fs::read_dir, path::Path};
 
-use id3::{Tag, TagLike, Error};
+use audiotags::{AudioTag, Tag};
 use rodio::decoder::DecoderError;
 use rodio::Decoder;
+use rodio::Source;
 
 use crate::app::App;
 use crate::utils::split_path::split_path_to_name;
@@ -27,7 +28,7 @@ pub struct Audio {
 }
 
 impl Audio {
-    fn new(tag: Tag, duration: Duration) -> Audio {
+    fn new(tag: Box<dyn AudioTag>, duration: Duration) -> Audio {
         let artist = match tag.artist() {
             Some(s) => s.to_string(),
             None => "".to_string(),
@@ -37,7 +38,7 @@ impl Audio {
             None => "".to_string(),
         };
         let album = match tag.album() {
-            Some(s) => s.to_string(),
+            Some(album) => album.title.to_string(),
             None => "".to_string(),
         };
 
@@ -117,13 +118,27 @@ pub fn check_audio_file(path: &PathBuf) -> Result<bool, io::Error> {
     Ok(false)
 }
 
-pub fn read_audio_file<'a>(path: &str) -> Result<Audio, Error> {
-    let tag = Tag::read_from_path(path)?;
+pub fn read_audio_file<'a>(path: &str, extension: &str) -> Result<Audio, String> {
+    let tag = match Tag::default().read_from_path(path) {
+        Ok(tag) => tag,
+        Err(err) => return Err(err.to_string()),
+    };
 
-    let path = Path::new(path);
-    let duration = match mp3_duration::from_path(&path) {
-        Ok(dur) => dur,
-        Err(_) => Duration::from_secs(0),
+    let mut duration = Duration::from_secs(0);
+    if extension == "MP3" || extension == "mp3" {
+        match mp3_duration::from_path(path) {
+            Ok(d) => duration = d,
+            Err(err) => return Err(err.to_string()),
+        };
+    } else {
+        match get_audio_source(path) {
+            Ok(source) => {
+                if let Some(d) = source.total_duration() {
+                    duration = d;
+                };
+            },
+            Err(err) => return Err(err.to_string()),
+        };
     };
 
     Ok(Audio::new(tag, duration))
